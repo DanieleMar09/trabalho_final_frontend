@@ -1,0 +1,91 @@
+.contact-container {
+  max-width: 600px;
+  margin: 8rem auto 0;
+  padding: 2.5rem;
+  background-color: #000;
+  border: 1px solid #ff0000;
+  position: relative;
+}
+
+.contact-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #ff0000;
+}
+
+.contact-container h2 {
+  color: #fff;
+  text-align: center;
+  font-size: 2.2rem;
+  margin-bottom: 2.5rem;
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+}
+
+.contact-form input,
+.contact-form textarea {
+  padding: 1rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #333;
+  color: #fff;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: none;
+  border-bottom-color: #ff0000;
+}
+
+.contact-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.contact-form button {
+  padding: 1rem;
+  background: #ff0000;
+  color: white;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.contact-form button:hover {
+  background: #cc0000;
+}
+
+.success-message {
+  text-align: center;
+  padding: 2rem;
+}
+
+.success-message p {
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .contact-container {
+    margin: 5rem 1.5rem 0;
+    padding: 2rem 1.5rem;
+  }
+  
+  .contact-container h2 {
+    font-size: 1.8rem;
+  }
+}

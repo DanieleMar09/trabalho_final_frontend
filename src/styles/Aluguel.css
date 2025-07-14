@@ -1,0 +1,91 @@
+.aluguel-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+  background: #f4f7f9;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.05);
+}
+
+h1 {
+  text-align: center;
+  color: #2c3e50;
+}
+
+.toggle-btn {
+  background: #2c3e50;
+  color: #fff;
+  padding: 10px 20px;
+  margin: 1rem 0;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.toggle-btn:hover {
+  background: #34495e;
+}
+
+.form-card {
+  background: #ffffff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  display: grid;
+  gap: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.form-card h2 {
+  margin-bottom: 0.5rem;
+}
+
+.form-card input,
+.form-card select {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.form-card button {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.form-card button:hover {
+  background-color: #219150;
+}
+
+.aluguel-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.aluguel-table th,
+.aluguel-table td {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.aluguel-table thead {
+  background: #2c3e50;
+  color: white;
+}
+
+.aluguel-table tr:nth-child(even) {
+  background: #f2f2f2;
+}

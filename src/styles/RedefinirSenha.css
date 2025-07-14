@@ -1,0 +1,221 @@
+/* Container principal com imagem de fundo */
+.redefinir-container {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url('../assets/images/fundo.jpg');
+  background-size: cover;
+  background-position: center;
+  padding: 20px;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin-top: -5px;
+  background-attachment: fixed;
+  z-index: 1;
+}
+
+/* Overlay escuro */
+.redefinir-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: -1;
+}
+
+/* Cartão do formulário */
+.redefinir-card {
+  position: relative;
+  background-color: #1e1e1e;
+  padding: 40px 45px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(255, 0, 0, 0.2);
+  border: 1.5px solid red;
+  transition: transform 0.3s ease;
+  color: #eee;
+  width: 100%;
+  max-width: 450px;
+}
+
+/* Título em minúsculas */
+.titulo-redefinir {
+  text-align: center;
+  color: red;
+  font-weight: 700;
+  font-size: 28px;
+  margin-bottom: 25px;
+  text-transform: lowercase;
+  letter-spacing: 1px;
+}
+
+/* Botão Voltar */
+.btn-voltar {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.btn-voltar:hover {
+  color: red;
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
+/* Restante do CSS permanece igual */
+.mensagem {
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.mensagem.sucesso {
+  background-color: #2a2f2a;
+  color: #82c91e;
+  border: 1px solid #82c91e;
+}
+
+.mensagem.erro {
+  background-color: #3a1a1a;
+  color: #ff6b6b;
+  border: 1px solid #ff6b6b;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #eee;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.redefinir-card input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1.5px solid #444;
+  border-radius: 8px;
+  background-color: #121212;
+  color: #eee;
+  font-size: 16px;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+.redefinir-card input::placeholder {
+  color: #888;
+  font-style: italic;
+}
+
+.redefinir-card input:focus {
+  border-color: red;
+  background-color: #1e1e1e;
+  outline: none;
+  box-shadow: 0 0 8px rgba(255, 0, 0, 0.5);
+}
+
+.btn-primario {
+  width: 100%;
+  padding: 14px;
+  background-color: red;
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 17px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 25px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(230, 57, 70, 0.4);
+}
+
+.btn-primario:hover {
+  background-color: #d32f2f;
+  box-shadow: 0 6px 16px rgba(211, 47, 47, 0.6);
+}
+
+.btn-primario:disabled {
+  background-color: #444;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: red;
+  font-weight: 600;
+  text-decoration: none;
+  margin: 15px auto 0;
+  display: block;
+  text-align: center;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.btn-link:hover {
+  color: #ff4d4d;
+  text-shadow: 0 0 6px rgba(255, 77, 77, 0.6);
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
+.redefinir-card small {
+  display: block;
+  margin-top: 6px;
+  color: #888;
+  font-size: 13px;
+  font-style: italic;
+}
+
+.redirecionando {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+@media (max-width: 576px) {
+  .redefinir-card {
+    padding: 30px;
+  }
+  
+  .titulo-redefinir {
+    font-size: 24px;
+  }
+  
+  .btn-primario {
+    padding: 12px;
+    font-size: 15px;
+  }
+}

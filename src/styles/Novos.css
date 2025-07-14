@@ -1,0 +1,243 @@
+/* Container Principal */
+.novos-container {
+  padding: 100px 20px 40px;
+  background-color: #121212;
+  margin-top: 35px;
+  min-height: 100vh;
+  text-align: center; /* Centraliza o título */
+}
+
+.novos-titulo {
+  font-size: 2.8rem;
+  color: #e50914;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e50914;
+  display: inline-block;
+  padding-bottom: 5px;
+  /* Remove width para ficar só na largura do texto */
+}
+
+/* Filtros */
+.novos-filtros {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.novo-pesquisa-input,
+.novos-preco-select,
+.novos-marca-select {
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: none;
+  font-size: 1rem;
+  background-color: #1f1f1f;
+  color: #fff;
+  outline: none;
+  transition: border-color 0.3s, transform 0.3s;
+  max-width: 250px; /* limita largura */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.novo-pesquisa-input::placeholder {
+  color: #888;
+}
+
+.novo-pesquisa-input:focus,
+.novos-preco-select:focus,
+.novos-marca-select:focus {
+  border: 2px solid #e50914;
+  transform: scale(1.03);
+}
+
+.limpar-filtros-btn {
+  background-color: transparent;
+  color: #e50914;
+  border: 1px solid #e50914;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.limpar-filtros-btn:hover {
+  background-color: #e50914;
+  color: white;
+}
+
+/* Grid de Carros */
+.carros-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+}
+
+/* Cartão dos Carros */
+.carro-card {
+  background-color: #181818;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  width: calc(25% - 30px);
+  min-width: 260px;
+  padding: 20px;
+  box-sizing: border-box;
+  text-align: left;
+  color: #dcdcdc;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.carro-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+}
+
+.carro-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.carro-card h3 {
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+}
+
+.carro-card p {
+  margin: 3px 0;
+}
+
+.carro-card .preco {
+  color: #4CAF50;
+  font-weight: bold;
+  margin: 10px 0;
+  font-size: 1.2rem;
+}
+
+/* Botões */
+.botoes {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.comprar-btn, .detalhes-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.comprar-btn {
+  background-color: #e50914;
+  color: #fff;
+}
+
+.comprar-btn:hover {
+  background-color: #b00610;
+}
+
+.detalhes-btn {
+  background-color: #1f1f1f;
+  color: white;
+  border: 1px solid #e50914;
+}
+
+.detalhes-btn:hover {
+  background-color: #e50914;
+  color: white;
+}
+
+/* Estados do botão Comprar */
+.comprar-btn.added {
+  background-color: #4CAF50;
+  cursor: default;
+}
+
+.comprar-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Animação leve no hover */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.comprar-btn:not(:disabled):hover {
+  animation: pulse 1s infinite;
+}
+
+/* Mensagem de filtro ativo */
+.filtro-ativo {
+  color: #ccc;
+  margin-bottom: 20px;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.filtro-ativo strong {
+  color: #e50914;
+}
+
+/* Mensagem de sem resultados */
+.sem-resultados {
+  color: #bbb;
+  font-size: 1.1rem;
+  margin-top: 30px;
+  text-align: center;
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 1024px) {
+  .carro-card {
+    width: calc(33.33% - 30px);
+  }
+}
+
+@media (max-width: 768px) {
+  .carro-card {
+    width: calc(50% - 30px);
+  }
+
+  .novo-pesquisa-input {
+    max-width: 200px;
+  }
+
+  .novos-preco-select,
+  .novos-marca-select {
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .carro-card {
+    width: 100%;
+  }
+
+  .novo-pesquisa-input {
+    max-width: 180px;
+  }
+
+  .novos-preco-select,
+  .novos-marca-select {
+    max-width: 140px;
+  }
+}

@@ -1,0 +1,393 @@
+/* Estilos base */
+.finalizar-compra-container {
+  min-height: 100vh;
+  background-color: #000;
+  color: #fff;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.compra-box {
+  background-color: #111;
+  border: 1px solid #e53e3e;
+  border-radius: 8px;
+  padding: 30px;
+  max-width: 800px;
+  width: 100%;
+  box-shadow: 0 0 20px rgba(229, 62, 62, 0.3);
+}
+
+.compra-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.compra-title {
+  color: #e53e3e;
+  font-size: 28px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+/* Barra de progresso */
+.progress-steps {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.progress-steps::before {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #333;
+  z-index: 1;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+  flex: 1;
+}
+
+.progress-step.active {
+  color: #e53e3e;
+}
+
+.progress-step.active .progress-number {
+  background-color: #e53e3e;
+}
+
+.progress-number {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #333;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+/* Formulário */
+.compra-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.section-title {
+  color: #e53e3e;
+  font-size: 22px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+label {
+  color: #ccc;
+  font-size: 14px;
+}
+
+.form-input {
+  padding: 12px 15px;
+  background-color: #222;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 16px;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #e53e3e;
+}
+
+.loading-text {
+  color: #e53e3e;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.total-section {
+  background-color: #222;
+  padding: 15px;
+  border-radius: 4px;
+  text-align: right;
+  margin: 20px 0;
+}
+
+.total-section h3 {
+  color: #e53e3e;
+  font-size: 20px;
+}
+
+/* Métodos de pagamento */
+.payment-method {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.payment-method:hover {
+  border-color: #555;
+}
+
+.payment-method.active {
+  border-color: #e53e3e;
+  background-color: rgba(229, 62, 62, 0.1);
+}
+
+.payment-icon {
+  width: 40px;
+  height: 40px;
+  background-color: #222;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #e53e3e;
+}
+
+/* Pagamento */
+.payment-section {
+  text-align: center;
+}
+
+.payment-instructions {
+  color: #ccc;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.qr-code-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  display: inline-block;
+  margin: 20px 0;
+}
+
+.payment-details {
+  background-color: #222;
+  padding: 15px;
+  border-radius: 4px;
+  max-width: 300px;
+  margin: 0 auto 20px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.pix-code-container {
+  margin: 20px 0;
+  text-align: left;
+}
+
+.pix-code-container label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.pix-code-wrapper {
+  display: flex;
+  align-items: center;
+  background-color: #222;
+  border-radius: 4px;
+  padding: 10px;
+  margin-top: 8px;
+}
+
+.pix-code {
+  flex: 1;
+  word-break: break-all;
+  font-family: monospace;
+  font-size: 14px;
+  color: #e53e3e;
+}
+
+.copy-button {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  margin-left: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.copy-button:hover {
+  background-color: #444;
+}
+
+/* Boleto */
+.boleto-info {
+  background-color: #222;
+  padding: 20px;
+  border-radius: 4px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+/* Cartão de crédito */
+.credit-card-fields {
+  background-color: #222;
+  padding: 20px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+/* Confirmação */
+.confirmation-section {
+  text-align: center;
+}
+
+.confirmation-icon {
+  width: 80px;
+  height: 80px;
+  background-color: #22543d;
+  color: #48bb78;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  margin: 0 auto 20px;
+}
+
+.confirmation-title {
+  color: #48bb78;
+  font-size: 28px;
+  margin-bottom: 30px;
+}
+
+.order-details {
+  background-color: #222;
+  padding: 20px;
+  border-radius: 4px;
+  text-align: left;
+  max-width: 500px;
+  margin: 0 auto 30px;
+}
+
+.order-details h3 {
+  color: #e53e3e;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 8px;
+}
+
+/* Botões */
+.submit-button {
+  background-color: #e53e3e;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.submit-button:hover {
+  background-color: #c53030;
+}
+
+.submit-button:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+}
+
+.submit-button.secondary {
+  background-color: #333;
+  margin-top: 10px;
+}
+
+.submit-button.secondary:hover {
+  background-color: #444;
+}
+
+.form-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+/* Mensagens de erro */
+.error-message {
+  background-color: #742a2a;
+  color: #fed7d7;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Rodapé */
+.compra-footer {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #333;
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .compra-box {
+    padding: 20px;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .progress-steps {
+    font-size: 12px;
+  }
+
+  .form-buttons {
+    grid-template-columns: 1fr;
+  }
+}

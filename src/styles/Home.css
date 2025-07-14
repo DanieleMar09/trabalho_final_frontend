@@ -1,0 +1,298 @@
+/* Variáveis globais /
+:root {
+/ Cores principais */
+:root{
+--primary-color: #b00;
+--secondary-color: rgb(43, 40, 40);
+--accent-color: red;
+--text-color: #333;
+--text-light: #f9f9f9;
+--text-muted: #777;
+--background-color: #000000;
+/* Dimensões das barras de navegação */
+--navbar1-h: 60px;
+--navbar2-h: 50px;
+/* Sombras */
+--card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+--hover-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+/* Transições */
+--transition-speed: 0.3s;
+/* Breakpoints */
+--mobile: 576px;
+--tablet: 768px;
+--desktop: 1024px;
+}
+/* RESET GERAL E TIPOGRAFIA */
+
+*{
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+}
+.home-mensagem {
+  margin: 20px auto;
+  width: 80%;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 1rem;
+  text-align: center;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.mensagem-sucesso {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+
+html, body {
+/* height: 100%; */
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+background-color: var(--background-color);
+color: var(--text-color);
+overflow-x: hidden;
+scroll-behavior: smooth;
+line-height: 1.6;
+}
+/* Container para conteúdo principal considerando navbars fixas */
+.main-content {
+padding-top: calc(var(--navbar1-h) + var(--navbar2-h));
+}
+/* NAVEGAÇÃO */
+/* NAVBAR1 FIXA */
+.navbar1 {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: var(--navbar1-h);
+background-color: var(--secondary-color);
+color: var(--text-light);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 10;
+box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+/* NAVBAR2 FIXA */
+.navbar2 {
+position: fixed;
+top: var(--navbar1-h);
+left: 0;
+width: 100%;
+height: var(--navbar2-h);
+background-color: var(--accent-color);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 9;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.navbar2 ul {
+list-style: none;
+display: flex;
+justify-content: center;
+gap: 30px;
+}
+.navbar2 ul li a {
+color: var(--text-light);
+text-decoration: none;
+font-weight: 500;
+position: relative;
+transition: all var(--transition-speed);
+}
+.navbar2 ul li a:hover {
+color: rgba(255, 255, 255, 0.8);
+}
+/* Adiciona linha sob links ao passar o mouse */
+.navbar2 ul li a::after {
+content: '';
+position: absolute;
+width: 0;
+height: 2px;
+bottom: -5px;
+left: 0;
+background-color: white;
+transition: width var(--transition-speed);
+}
+.navbar2 ul li a:hover::after {
+width: 100%;
+}
+/* CONTAINER PRINCIPAL */
+.home-container {
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+align-items: center;
+width: 100%;
+max-width: 1400px;
+margin: 0 auto;
+padding: calc(var(--navbar1-h) + var(--navbar2-h) + 20px) 20px 40px;
+}
+/* SEÇÕES */
+.section {
+text-align: center;
+margin: 80px 0;
+width: 100%;
+max-width: 1200px;
+}
+.section h2 {
+font-size: clamp(1.8rem, 5vw, 2.5rem);
+color: var(--primary-color);
+margin-bottom: 40px;
+border-bottom: 2px solid var(--primary-color);
+display: inline-block;
+padding-bottom: 8px;
+}
+/* FILEIRAS DE CARROS */
+.car-row {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+gap: 25px;
+width: 100%;
+margin-top: 30px;
+}
+.car-card {
+position: relative;
+border-radius: 12px;
+overflow: hidden;
+box-shadow: var(--card-shadow);
+transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+}
+.car-card:hover {
+transform: translateY(-5px);
+box-shadow: var(--hover-shadow);
+}
+.car-row img {
+width: 100%;
+height: 120px;
+object-fit: cover;
+transition: transform var(--transition-speed);
+}
+.car-row img:hover {
+transform: scale(1.05);
+}
+/* MARCAS */
+.brand-row {
+display: flex;
+justify-content: center;
+flex-wrap: wrap;
+gap: 40px;
+margin-top: 30px;
+}
+.brand-item {
+display: flex;
+flex-direction: column;
+align-items: center;
+}
+.brand-row img {
+width: 100px;
+height: 70px;
+object-fit: contain;
+
+transition: transform var(--transition-speed), filter var(--transition-speed);
+}
+.brand-row img:hover {
+transform: scale(1.1);
+filter: grayscale(0%);
+}
+/* Informações da concessionária */
+.dealership-info {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 60px;
+margin-top: 60px;
+}
+.dealership-image {
+width: 100%;
+max-width: 500px;
+height: auto;
+border-radius: 15px;
+box-shadow: var(--card-shadow);
+transition: transform var(--transition-speed);
+}
+.dealership-image:hover {
+transform: scale(1.02);
+}
+.dealership-description {
+max-width: 500px;
+font-size: clamp(1rem, 2vw, 1.2rem);
+color: var(--text-muted);
+text-align: left;
+line-height: 1.8;
+}
+/* Botão de chamada para ação */
+.cta-button {
+display: inline-block;
+padding: 12px 30px;
+background-color: var(--primary-color);
+color: white;
+border: none;
+border-radius: 6px;
+font-size: 1.1rem;
+font-weight: 600;
+cursor: pointer;
+transition: all var(--transition-speed);
+margin-top: 30px;
+text-decoration: none;
+}
+.cta-button:hover {
+background-color: #900;
+transform: translateY(-3px);
+box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+/* Footer */
+footer {
+background-color: var(--secondary-color);
+color: var(--text-light);
+padding: 40px 20px;
+text-align: center;
+margin-top: 80px;
+}
+.footer-content {
+max-width: 1200px;
+margin: 0 auto;
+display: flex;
+flex-wrap: wrap;
+justify-content: space-between;
+gap: 40px;
+}
+.footer-section {
+flex: 1;
+min-width: 250px;
+}
+.footer-section h3 {
+margin-bottom: 20px;
+font-size: 1.3rem;
+}
+/* MEDIA QUERIES PARA RESPONSIVIDADE */
+@media (max-width: 768px) {
+.dealership-info {
+flex-direction: column;
+gap: 30px;
+}
+.navbar2 ul {
+gap: 15px;
+}
+.section {
+margin: 60px 0;
+}
+}
+@media (max-width: 576px) {
+.navbar2 ul {
+gap: 10px;
+font-size: 0.9rem;
+}
+.car-row {
+grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+.brand-row {
+gap: 20px;
+}
+.brand-row img {
+width: 80px;
+}
+}

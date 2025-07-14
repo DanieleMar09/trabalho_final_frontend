@@ -1,0 +1,501 @@
+
+/* Estilos base */
+.navbar1 {
+  background-color: black;
+  color: white;
+  padding: 10px 0;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+.navbar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Texto de localização */
+.location-text {
+  cursor: pointer;
+  flex: 1;
+  text-align: center;
+  color: white;
+}
+
+.location-city, .location-state {
+  color: red;
+  font-weight: bold;
+}
+
+/* Seção direita */
+.right-section {
+  position: absolute;
+  right: 20px;
+}
+
+/* Links de autenticação */
+.auth-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.auth-link {
+  color: red !important;
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.auth-separator {
+  color: white;
+}
+
+.auth-link:hover {
+  color: #ff8a80 !important;
+  text-decoration: underline;
+}
+
+/* Container do perfil */
+.profile-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.profile-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 20px;
+  transition: background 0.3s;
+}
+
+.profile-info:hover {
+  background: rgba(255, 0, 0, 0.1);
+}
+
+/* Estilo do ícone de perfil - SEM LINHA/SUBLINHADO */
+.profile-icon {
+  color: red;
+  font-size: 1.4rem;
+  transition: all 0.3s ease;
+  text-decoration: none !important;
+  display: flex;
+  align-items: center;
+  transform: translateY(-2px); /* Sobe o ícone 2px */
+}
+
+
+.profile-icon:hover {
+  color: #ff4444;
+  transform: scale(1.1);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: white;
+}
+
+.user-role {
+  font-size: 12px;
+  color: white;
+  background: rgba(255, 0, 0, 0.3);
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-top: 3px;
+  display: inline-block;
+  width: fit-content;
+}
+
+/* Dropdown do perfil */
+.profile-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #222;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  border-radius: 8px;
+  min-width: 280px;
+  z-index: 1001;
+  padding: 0;
+  animation: fadeIn 0.3s ease;
+  border: 1px solid #444;
+  overflow: hidden;
+}
+
+.dropdown-header {
+  padding: 15px 20px;
+  background: #333;
+  border-bottom: 1px solid #444;
+}
+
+.user-email {
+  font-size: 13px;
+  color: #ccc;
+  font-weight: 500;
+}
+
+.user-status {
+  font-size: 12px;
+  color: #27ae60;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.status-online {
+  color: #27ae60;
+  font-size: 8px;
+}
+
+.profile-dropdown .dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  color: white;
+  text-decoration: none;
+  transition: all 0.2s;
+  font-size: 14px;
+  gap: 12px;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  border-bottom: 1px solid #333;
+}
+
+.profile-dropdown .dropdown-item:hover {
+  background-color: #333;
+  color: red;
+}
+
+.profile-dropdown .dropdown-item:hover i {
+  color: red;
+}
+
+.profile-dropdown .dropdown-item.logout {
+  color: red;
+  border-top: 1px solid #444;
+  margin-top: 0;
+  padding-top: 12px;
+  font-weight: 600;
+}
+
+.profile-dropdown .dropdown-item.logout:hover {
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
+.profile-dropdown .dropdown-item i {
+  width: 20px;
+  text-align: center;
+  color: #ccc;
+  transition: color 0.2s;
+}
+
+.dropdown-section {
+  border-bottom: 1px solid #444;
+}
+
+.section-title {
+  padding: 10px 20px 5px;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #999;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Modal de localização */
+.location-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  background-color: #222;
+  padding: 40px 25px 25px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  color: white;
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 5px;
+  transition: color 0.3s;
+}
+
+.modal-close:hover {
+  color: red;
+}
+
+/* Container de pesquisa */
+.search-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.unified-search {
+  flex: 1;
+  padding: 12px;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background-color: #333;
+  color: white;
+  font-size: 1rem;
+}
+
+.search-button {
+  padding: 0 20px;
+  background-color: #555;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 1rem;
+}
+
+.search-button:hover {
+  background-color: #666;
+}
+
+/* Localização sugerida */
+.suggested-location {
+  padding: 12px;
+  background-color: #333;
+  border-radius: 4px;
+  margin: 10px 0;
+  cursor: pointer;
+  border: 1px solid #444;
+  transition: background-color 0.3s;
+  color: white;
+}
+
+.suggested-location:hover {
+  background-color: #444;
+}
+
+/* Botões */
+.auto-location-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  margin: 10px 0;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.auto-location-btn:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
+.confirm-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #008000;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  margin: 10px 0;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.confirm-btn:hover {
+  background-color: #006600;
+}
+
+/* Texto de aviso */
+.location-disclaimer {
+  font-size: 0.8rem;
+  color: #aaa;
+  margin-top: 15px;
+  line-height: 1.4;
+}
+
+/* Animação */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+  .navbar-content {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+  }
+  
+  .right-section {
+    position: static;
+    margin-top: 5px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .location-text {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .profile-container {
+    width: 100%;
+    justify-content: center;
+    margin-top: 100px;
+  }
+
+  .profile-info {
+    padding: 5px;
+  }
+
+  .profile-dropdown {
+    width: 90%;
+    left: 5%;
+    right: auto;
+  }
+  
+  .auth-links {
+    justify-content: center;
+  }
+  
+  .profile-logout-container {
+    gap: 6px;
+  }
+  
+  .logout-btn {
+    padding: 4px 8px;
+  }
+  
+  .logout-text {
+    font-size: 0.9rem;
+  }
+
+  .profile-icon {
+    font-size: 1.3rem;
+  }
+
+  .logout-icon {
+    font-size: 1.2rem;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: 40px 15px 15px;
+  }
+  
+  .search-container {
+    flex-direction: column;
+  }
+  
+  .search-button {
+    width: 100%;
+    padding: 12px;
+  }
+  
+}
+
+
+.navbar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 12000px;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  margin-right: 30px;
+}
+
+.navbar-logo {
+  height: 70px;
+  width: auto;
+}
+/* Estilos para a seção de Contatos */
+.dropdown-section .fa-address-book {
+  color: #4e73df;
+  margin-right: 10px;
+}
+
+.dropdown-section .fa-headset {
+  color: #1cc88a;
+  margin-right: 10px;
+}
+
+.dropdown-item:hover .fa-address-book {
+  color: #3a5bcd;
+}
+
+.dropdown-item:hover .fa-headset {
+  color: #17a673;
+}
+
+.right-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* ou o espaçamento desejado */
+}
+
+.navbar2-cart {
+  cursor: pointer;
+}
+
+.profile-container {
+  position: relative;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 999;
+  /* mais estilos como background, sombra, etc */
+}

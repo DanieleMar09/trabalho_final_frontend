@@ -1,0 +1,93 @@
+:root {
+  --navbar1-h: 60px;
+  --navbar2-h: 70px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.navbar2 {
+  position: fixed;
+  top: var(--navbar1-h);
+  left: 0;
+  width: 100%;
+  height: var(--navbar2-h);
+  background-color: red;
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Container central para os itens do menu */
+.navbar2-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.navbar2 ul {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  align-items: center;
+}
+
+.navbar2 ul li {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.navbar2 ul li a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 0 10px;
+  transition: color 0.3s;
+  box-sizing: border-box;
+  line-height: normal;
+}
+
+.navbar2 ul li a:hover {
+  color: #000000;
+}
+
+/* Container do carrinho (lado direito) */
+.navbar2-right {
+  margin-left: auto; /* Empurra para a direita */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding-right: 20px;
+}
+
+.cart-icon {
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 15px;
+  transition: color 0.3s;
+}
+
+.cart-icon:hover {
+  color: #000000;
+  background-color: rgba(255, 255, 255, 0.1);
+}
