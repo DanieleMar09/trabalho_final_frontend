@@ -208,20 +208,22 @@ const DetalhesCarro = () => {
     try {
       const itemDto = {
         usuarioId: 1, // Ajuste conforme usuário logado
-        produtoId: carro.id,
-        nomeProduto: carro.modelo,
+        produtoId: carro.Id,
+        nomeProduto: carro.Modelo,
         precoUnitario: carro.Preco,
         quantidade: 1,
         cor: corSelecionada,
         imagemUrl: imagemAtual,
       };
 
+      console.log(itemDto)
+
       await axios.post(
         "https://localhost:7239/api/Carrinho/AdicionarItem",
         itemDto
       );
 
-      alert(`✅ ${carro.modelo} (${corSelecionada}) adicionado ao carrinho!`);
+      alert(`✅ ${carro.Modelo} (${corSelecionada}) adicionado ao carrinho!`);
     } catch (error) {
       console.error("Erro ao adicionar ao carrinho", error);
       alert("❌ Erro ao adicionar ao carrinho");

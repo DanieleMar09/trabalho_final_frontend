@@ -18,10 +18,10 @@ const Carrinho = () => {
         const res = await axios.get(`https://localhost:7239/api/Carrinho/usuario/${usuarioId}`);
         
         // Ajuste conforme a estrutura da sua API
-        if (Array.isArray(res.data) && res.data.length > 0 && res.data[0].itens) {
-          setCartItems(res.data[0].itens);
-        } else if (res.data && res.data.itens) {
-          setCartItems(res.data.itens);
+        if (Array.isArray(res.data) && res.data.length > 0 && res.data[0].Itens) {
+          setCartItems(res.data[0].Itens);
+        } else if (res.data && res.data.Itens) {
+          setCartItems(res.data.Itens);
         } else {
           setCartItems([]);
         }
@@ -72,12 +72,12 @@ const Carrinho = () => {
   };
 
   const total = cartItems.reduce(
-    (acc, item) => acc + item.precoUnitario * item.quantidade,
+    (acc, item) => acc + item.PrecoUnitario * item.Quantidade,
     0
   );
 
   const handleFinalizarCompra = () => {
-    // Verifica se há itens no carrinho
+    // Verifica se há Itens no carrinho
     if (cartItems.length === 0) return;
 
     // Prepara os dados para a página de finalização
@@ -86,7 +86,7 @@ const Carrinho = () => {
       carrosId: cartItems[0]?.carroId || 1,      // Ajuste conforme sua estrutura
       usuariosId: usuarioId,
       precoFinal: total,
-      itens: cartItems
+      Itens: cartItems
     };
 
     // Navega para a página de finalização com os dados
@@ -118,12 +118,12 @@ const Carrinho = () => {
         <>
           <div className="carrinho-items">
             {cartItems.map((item) => (
-              <div key={item.id} className="carrinho-item">
+              <div key={item.Id} className="carrinho-item">
                 <div className="item-image-container">
-                  {item.imagemUrl ? (
+                  {item.ImagemUrl ? (
                     <img
-                      src={item.imagemUrl}
-                      alt={item.nomeProduto}
+                      src={item.ImagemUrl}
+                      alt={item.NomeProduto}
                       className="item-image"
                     />
                   ) : (
@@ -132,35 +132,35 @@ const Carrinho = () => {
                 </div>
 
                 <div className="item-details">
-                  <h3 className="item-name">{item.nomeProduto}</h3>
+                  <h3 className="item-name">{item.NomeProduto}</h3>
 
                   <p className="item-cor">
-                    <strong>Cor:</strong> {item.cor}
+                    <strong>Cor:</strong> {item.Cor}
                   </p>
 
                   <p className="item-price">
-                    R$ {item.precoUnitario.toFixed(2).replace(".", ",")}
+                    R$ {item.PrecoUnitario.toFixed(2).replace(".", ",")}
                   </p>
 
                   <div className="quantidade-controle">
                     <button
                       onClick={() =>
-                        atualizarQuantidade(item.id, item.quantidade - 1)
+                        atualizarQuantidade(item.Id, item.Quantidade - 1)
                       }
                       disabled={isUpdating}
-                      aria-label={`Diminuir quantidade de ${item.nomeProduto}`}
+                      aria-label={`Diminuir quantidade de ${item.NomeProduto}`}
                     >
                       <FaMinus />
                     </button>
 
-                    <span>{item.quantidade}</span>
+                    <span>{item.Quantidade}</span>
 
                     <button
                       onClick={() =>
-                        atualizarQuantidade(item.id, item.quantidade + 1)
+                        atualizarQuantidade(item.Id, item.Quantidade + 1)
                       }
                       disabled={isUpdating}
-                      aria-label={`Aumentar quantidade de ${item.nomeProduto}`}
+                      aria-label={`Aumentar quantidade de ${item.NomeProduto}`}
                     >
                       <FaPlus />
                     </button>
@@ -168,9 +168,9 @@ const Carrinho = () => {
                 </div>
 
                 <button
-                  onClick={() => removerItem(item.id)}
+                  onClick={() => removerItem(item.Id)}
                   disabled={isUpdating}
-                  aria-label={`Remover ${item.nomeProduto} do carrinho`}
+                  aria-label={`Remover ${item.NomeProduto} do carrinho`}
                   className="btn-remover"
                 >
                   <FaTrash />
