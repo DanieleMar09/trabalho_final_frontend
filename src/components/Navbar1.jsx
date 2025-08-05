@@ -200,9 +200,7 @@ const Navbar1 = () => {
                     <a href="/agendamentos" className="dropdown-item">
                       <i className="fas fa-calendar-check"></i> Agendamentos
                     </a>
-                    <a href="/financiamento" className="dropdown-item">
-                      <i className="fas fa-file-invoice-dollar"></i> Financiamento
-                    </a>
+                    
                   </div>
 
                   <div className="dropdown-section">

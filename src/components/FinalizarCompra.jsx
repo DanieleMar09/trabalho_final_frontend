@@ -4,16 +4,19 @@ import axios from 'axios';
 import { QRCodeSVG } from 'qrcode.react';
 import '../styles/FinalizaCompra.css';
 
-// Componente para mostrar os passos do processo
+// Configurações - ATUALIZE ESTES VALORES!
+const API_BASE_URL = 'https://localhost:7239/api/CompraFinalizada'; // Substitua pela sua URL real
+const PIX_EXPIRATION_TIME = 1800; // 30 minutos em segundos
+
+// Componente de Progresso
 const ProgressSteps = ({ currentStep }) => {
   const steps = ['Endereço', 'Pagamento', 'Confirmação'];
-  
   return (
     <div className="progress-steps">
       {steps.map((step, index) => (
         <div key={index} className={`progress-step ${currentStep >= index + 1 ? 'active' : ''}`}>
           <div className="progress-number">
-            {currentStep > index + 1 ? '✓' : currentStep === index + 1 ? index + 1 : index + 1}
+            {currentStep > index + 1 ? '✓' : index + 1}
           </div>
           <span>{step}</span>
         </div>
@@ -22,48 +25,47 @@ const ProgressSteps = ({ currentStep }) => {
   );
 };
 
-// Componente para mostrar informações do veículo
+// Componente de Informações do Veículo
 const VeiculoInfo = ({ veiculo }) => {
-  if (!veiculo) return null;
+  if (!veiculo) return (
+    <div className="veiculo-info">
+      <h3>Veículo Adquirido</h3>
+      <p className="error-text">Nenhuma informação do veículo disponível</p>
+    </div>
+  );
   
   return (
     <div className="veiculo-info">
       <h3>Veículo Adquirido</h3>
-      <div className="detail-row">
-        <span>Modelo:</span>
-        <span>{veiculo.modelo}</span>
-      </div>
-      <div className="detail-row">
-        <span>Ano:</span>
-        <span>{veiculo.ano}</span>
-      </div>
+      <div className="detail-row"><span>Modelo:</span><span>{veiculo.modelo || 'Não especificado'}</span></div>
+      <div className="detail-row"><span>Ano:</span><span>{veiculo.ano || 'Não especificado'}</span></div>
       {veiculo.placa && (
-        <div className="detail-row">
-          <span>Placa:</span>
-          <span>{veiculo.placa}</span>
-        </div>
+        <div className="detail-row"><span>Placa:</span><span>{veiculo.placa}</span></div>
       )}
     </div>
   );
 };
 
-// Componente principal
+// Componente Principal
 const FinalizarCompra = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { state } = location;
 
-  // Dados da concessionária
+  // Dados do merchant
   const merchantInfo = {
-    name: "DANI&THUR AUTOMÓVEIS",
-    city: "SABARÁ/MG",
-    phone: "(31) 99999-9999",
-    email: "vendas@danithur.com.br"
+    name: 'DANI&THUR AUTOMÓVEIS',
+    city: 'SABARÁ/MG',
+    phone: '(31) 99999-9999',
+    email: 'vendas@danithur.com.br'
   };
 
-  // Estados do formulário
+  // Tenta obter os dados do state ou do localStorage
+  const carrinhoData = state || JSON.parse(localStorage.getItem('carrinho')) || {};
+ 
+  // Estado do formulário
   const [formData, setFormData] = useState({
-    precoTotal: state?.precoFinal || 0,
+    precoTotal: carrinhoData.precoFinal || 0,
     metodoPagamento: 'Pix',
     cep: '',
     endereco: '',
@@ -83,126 +85,105 @@ const FinalizarCompra = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isConsultingCep, setIsConsultingCep] = useState(false);
   const [error, setError] = useState(null);
-  const [pixData, setPixData] = useState(null);
+  const [pixData, setPixData] = useState({
+    qrCodeBase64: null,
+    payload: null,
+    valor: 0,
+    transactionId: null,
+    expiresAt: null,
+    status: 'pending'
+  });
   const [step, setStep] = useState(1);
-  const [timeLeft, setTimeLeft] = useState(1800);
-  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(PIX_EXPIRATION_TIME);
+  const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
   const [numeroPedido, setNumeroPedido] = useState('');
   const [copySuccess, setCopySuccess] = useState(false);
-  const [formErrors, setFormErrors] = useState({});
+  const [boletoUrl, setBoletoUrl] = useState('');
 
-  // Função para formatar valores monetários
-  const formatCurrency = (value) => {
-    return value.toLocaleString('pt-BR', { 
-      minimumFractionDigits: 2, 
-      maximumFractionDigits: 2 
+  // Verificação inicial do veículo
+  useEffect(() => {
+    console.log(carrinhoData);
+    if (!carrinhoData.Itens) {
+      setError('Nenhum veículo selecionado. Redirecionando...');
+      const timer = setTimeout(() => navigate('/carrinho'), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [carrinhoData, navigate]);
+
+  // Formata valores monetários
+  const formatCurrency = (v) => {
+    return (v / 100).toLocaleString('pt-BR', { 
+      style: 'currency', 
+      currency: 'BRL' 
     });
   };
 
-  // Função para formatar tempo
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
+  // Formata tempo mm:ss
+  const formatTime = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 
-  // Consulta CEP com tratamento de erros
+  // Consulta CEP
   const consultarCep = useCallback(async (cep) => {
-    const cleanedCep = cep.replace(/\D/g, '');
-    if (cleanedCep.length !== 8) return;
-
+    const cleaned = cep.replace(/\D/g, '');
+    if (cleaned.length !== 8) return;
     try {
       setIsConsultingCep(true);
       setError(null);
-      const response = await axios.get(`https://viacep.com.br/ws/${cleanedCep}/json/`);
-      
-      if (response.data.erro) {
-        throw new Error('CEP não encontrado');
-      }
-
-      setFormData(prev => ({
-        ...prev,
-        endereco: response.data.logradouro || '',
-        bairro: response.data.bairro || '',
-        cidade: response.data.localidade || '',
-        estado: response.data.uf || ''
+      const { data } = await axios.get(`https://viacep.com.br/ws/${cleaned}/json/`);
+      if (data.erro) throw new Error('CEP não encontrado');
+      setFormData((p) => ({
+        ...p,
+        endereco: data.logradouro || '',
+        bairro: data.bairro || '',
+        cidade: data.localidade || '',
+        estado: data.uf || ''
       }));
-
-    } catch (err) {
+    } catch {
       setError('CEP não encontrado. Preencha manualmente.');
     } finally {
       setIsConsultingCep(false);
     }
   }, []);
 
-  // Handlers para os campos do formulário
+  // Handlers para campos do formulário
   const handleCepChange = (e) => {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 5) {
-      value = value.slice(0, 5) + '-' + value.slice(5, 8);
-    }
-    setFormData(prev => ({ ...prev, cep: value }));
-
-    if (value.replace(/\D/g, '').length === 8) {
-      consultarCep(value);
-    }
+    let v = e.target.value.replace(/\D/g, '');
+    if (v.length > 5) v = `${v.slice(0, 5)}-${v.slice(5, 8)}`;
+    setFormData((p) => ({ ...p, cep: v }));
+    if (v.replace(/\D/g, '').length === 8) consultarCep(v);
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
-    if (formErrors[name]) {
-      setFormErrors(prev => ({ ...prev, [name]: '' }));
-    }
-  };
+  const handleChange = (e) => setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
 
   const handleCardNumberChange = (e) => {
-    let value = e.target.value.replace(/\D/g, '');
-    value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
-    setFormData(prev => ({ ...prev, cartaoNumero: value.slice(0, 19) }));
+    const v = e.target.value.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ');
+    setFormData((p) => ({ ...p, cartaoNumero: v.slice(0, 19) }));
   };
 
   const handleCardExpiryChange = (e) => {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 2) {
-      value = value.slice(0, 2) + '/' + value.slice(2, 4);
-    }
-    setFormData(prev => ({ ...prev, cartaoValidade: value.slice(0, 5) }));
+    let v = e.target.value.replace(/\D/g, '');
+    if (v.length > 2) v = `${v.slice(0, 2)}/${v.slice(2, 4)}`;
+    setFormData((p) => ({ ...p, cartaoValidade: v.slice(0, 5) }));
   };
 
-  const handleCardCvvChange = (e) => {
-    const value = e.target.value.replace(/\D/g, '');
-    setFormData(prev => ({ ...prev, cartaoCVV: value.slice(0, 4) }));
-  };
+  const handleCardCvvChange = (e) =>
+    setFormData((p) => ({ ...p, cartaoCVV: e.target.value.replace(/\D/g, '').slice(0, 4) }));
 
-  const handleParcelasChange = (e) => {
-    const value = Math.min(Math.max(1, parseInt(e.target.value) || 1), 12);
-    setFormData(prev => ({ ...prev, parcelas: value }));
-  };
+  const handleParcelasChange = (e) =>
+    setFormData((p) => ({ ...p, parcelas: Math.min(Math.max(1, +e.target.value || 1), 12) }));
 
-  // Função para tratar mensagens de erro
-  const getErrorMessage = (error) => {
-    if (typeof error === 'string') {
-      if (error.includes('System.InvalidOperationException')) {
-        return 'Operação inválida: ' + error.split(':')[1]?.trim() || 'Por favor, verifique os dados e tente novamente';
-      }
-      return error;
-    }
-    if (error.message) {
-      if (error.message.includes('System.')) {
-        return error.message.split(' at ')[0];
-      }
-      return error.message;
-    }
-    return 'Ocorreu um erro ao processar sua requisição';
-  };
-
-  // Função principal para enviar os dados da compra
+  // Envia a compra para o backend
   const enviarCompraParaBackend = async () => {
     setIsLoading(true);
+    setError(null);
+    
+    // Validações iniciais
+    if (!carrinhoData.carrosId) {
+      setError('Nenhum veículo selecionado');
+      throw new Error('Veículo não selecionado');
+    }
+
     try {
-      const enderecoCompleto = {
+      const enderecoEntrega = {
         cep: formData.cep,
         logradouro: formData.endereco,
         numero: formData.numero,
@@ -211,175 +192,377 @@ const FinalizarCompra = () => {
         cidade: formData.cidade,
         uf: formData.estado
       };
+      
+        console.log(carrinhoData);
 
-      const compraData = {
-        CarrinhoId: 1,
-        CarroId: state?.veiculo?.id || 0,
-        UsuarioId: state?.cliente?.id || 1,
-        PrecoFinal: formData.precoTotal,
-        MetodoPagamento: formData.metodoPagamento,
+      const payload = {
+        UsuarioId: carrinhoData.usuariosId || 1,
+        ProdutoId: carrinhoData.carrosId,
+        Preco: formData.precoTotal,
+        FormaPagamento: formData.metodoPagamento === 'Pix' ? 0 : 
+                       formData.metodoPagamento === 'Boleto' ? 'boleto' : 'cartao',
         Observacoes: formData.observacoes,
-        EnderecoEntrega: JSON.stringify(enderecoCompleto)
+        EnderecoEntrega: enderecoEntrega,
+        Parcelas: formData.metodoPagamento === 'Cartão de Crédito' ? formData.parcelas : null,
+        Cartao: formData.metodoPagamento === 'Cartão de Crédito' ? {
+          numero: formData.cartaoNumero.replace(/\s/g, ''),
+          validade: formData.cartaoValidade,
+          cvv: formData.cartaoCVV,
+          nome: formData.cartaoNome
+        } : null
       };
 
-      const response = await fetch('https://localhost:7239/api/CompraFinalizada', {
-        method: 'POST',
+      console.log('Enviando payload:', payload);
+
+      console.log(carrinhoData);
+
+      // MOCK PARA DESENVOLVIMENTO - REMOVA EM PRODUÇÃO
+      if (API_BASE_URL.includes('sua-api')) {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        const mockResponse = {
+          numeroPedido: `MOCK-${Date.now()}`,
+          qrCode: "iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAA1BMVEX///+nxBvIAAAAAXRSTlMAQObYZgAAABlJREFUeNrtwTEBAAAAwiD7p7bGDmAAAAAAAAAAAAAA4G0HVwAAB9nYmgAAAABJRU5ErkJggg==",
+          codigoPix: "00020126360014BR.GOV.BCB.PIX0136123e4567-e12b-12d3-a456-426655440000520400005303986540510.005802BR5913FULANO DE TAL6008BRASILIA62070503***6304A1B2",
+          valor: formData.precoTotal,
+          idTransacao: `MOCK-${Date.now()}`,
+          expiracao: PIX_EXPIRATION_TIME * 1000
+        };
+        
+        setPixData({
+          qrCodeBase64: mockResponse.qrCode,
+          payload: mockResponse.codigoPix,
+          valor: mockResponse.valor,
+          transactionId: mockResponse.idTransacao,
+          expiresAt: Date.now() + mockResponse.expiracao,
+          status: 'pending'
+        });
+        
+        setNumeroPedido(mockResponse.numeroPedido);
+        setTimeLeft(Math.floor(mockResponse.expiracao / 1000));
+        return mockResponse;
+      }
+
+      // CÓDIGO REAL PARA PRODUÇÃO
+      const response = await axios.post(`${API_BASE_URL}`, payload, {
         headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(compraData)
+        }
       });
-
-      // Verifica se a resposta é JSON válido
-      const contentType = response.headers.get('content-type');
-      let responseData;
-      
-      if (contentType && contentType.includes('application/json')) {
-        responseData = await response.json();
-      } else {
-        const text = await response.text();
-        throw new Error(text || 'Erro ao finalizar compra');
-      }
-
-      if (!response.ok) {
-        throw new Error(responseData.message || 'Erro ao finalizar compra');
-      }
 
       if (formData.metodoPagamento === 'Pix') {
         setPixData({
-          qrCodeBase64: responseData.qrCodeBase64,
-          payload: responseData.pixCopiacolajson,
-          valor: formData.precoTotal,
-          transactionId: responseData.numeroNotaFiscal
+          qrCodeBase64: response.data.qrCode,
+          payload: response.data.codigoPix,
+          valor: response.data.valor || formData.precoTotal,
+          transactionId: response.data.idTransacao,
+          expiresAt: Date.now() + (response.data.expiracao || PIX_EXPIRATION_TIME * 1000),
+          status: 'pending'
         });
-        setTimeLeft(1800);
+        setTimeLeft(response.data.expiracao ? 
+          Math.floor(response.data.expiracao / 1000) : 
+          PIX_EXPIRATION_TIME
+        );
+      } else if (formData.metodoPagamento === 'Boleto') {
+        setBoletoUrl(response.data.urlBoleto || `${API_BASE_URL}/boleto/${response.data.numeroPedido}`);
       }
 
-      setNumeroPedido(responseData.numeroNotaFiscal);
-      return responseData;
+      setNumeroPedido(response.data.numeroPedido);
+      return response.data;
 
-    } catch (err) {
-      const errorMessage = getErrorMessage(err);
+    } catch (error) {
+      console.error('Erro ao finalizar compra:', error);
+      let errorMessage = 'Erro ao processar pagamento';
+      
+      if (error.response) {
+        errorMessage = error.response.data?.message || 
+                     error.response.data?.erro || 
+                     `Erro no servidor (${error.response.status})`;
+      } else if (error.request) {
+        errorMessage = 'Sem resposta do servidor. Verifique sua conexão.';
+      }
+      
       setError(errorMessage);
-      throw err;
+      throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Função para copiar código PIX
-  const copyToClipboard = () => {
-    if (!pixData?.payload) return;
+  // Verifica o status do pagamento
+  const verificarPagamento = useCallback(async () => {
+    if (!pixData.transactionId || pixData.status !== 'pending') return;
     
-    navigator.clipboard.writeText(pixData.payload)
-      .then(() => {
-        setCopySuccess(true);
-        setTimeout(() => setCopySuccess(false), 2000);
-      })
-      .catch(err => {
-        setError('Falha ao copiar código PIX');
-        console.error('Erro ao copiar:', err);
-      });
-  };
+    try {
+      setIsVerifyingPayment(true);
+      
+      // MOCK PARA DESENVOLVIMENTO
+      if (API_BASE_URL.includes('sua-api')) {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Simula pagamento confirmado após 30 segundos
+        if (Date.now() > pixData.expiresAt - (PIX_EXPIRATION_TIME * 1000 - 30000)) {
+          setPixData(prev => ({...prev, status: 'paid'}));
+          setStep(3);
+          return true;
+        }
+        return false;
+      }
 
-  // Efeito para o timer do PIX
-  useEffect(() => {
-    let timer;
-    if (step === 2 && formData.metodoPagamento === 'Pix' && pixData && !paymentConfirmed) {
-      timer = setInterval(() => {
-        setTimeLeft(prev => {
-          if (prev <= 0) {
-            clearInterval(timer);
-            setError('Tempo para pagamento expirado. Por favor, gere um novo QR Code.');
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+      // CÓDIGO REAL PARA PRODUÇÃO
+      const response = await axios.get(
+        `${API_BASE_URL}/pedidos/verificar-pagamento/${pixData.transactionId}`
+      );
+
+      if (response.data?.pago) {
+        setPixData(prev => ({...prev, status: 'paid'}));
+        setStep(3);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Erro ao verificar pagamento:', error);
+      setError('Falha ao verificar pagamento. Tente novamente.');
+      return false;
+    } finally {
+      setIsVerifyingPayment(false);
     }
-    return () => clearInterval(timer);
-  }, [step, paymentConfirmed, formData.metodoPagamento, pixData]);
+  }, [pixData.transactionId, pixData.status, pixData.expiresAt]);
 
-  // Manipulador de envio do formulário
+  // Efeitos para timer e verificação
+  useEffect(() => {
+    if (step !== 2 || formData.metodoPagamento !== 'Pix' || !pixData.transactionId) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        const newTime = prev - 1;
+        if (newTime <= 0) {
+          setPixData(prev => ({...prev, status: 'expired'}));
+          setError('Tempo para pagamento expirou.');
+          clearInterval(timer);
+          return 0;
+        }
+        return newTime;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [step, formData.metodoPagamento, pixData.transactionId]);
+
+  useEffect(() => {
+    if (step !== 2 || formData.metodoPagamento !== 'Pix' || pixData.status !== 'pending') return;
+    
+    const intervalId = setInterval(verificarPagamento, 15000);
+    return () => clearInterval(intervalId);
+  }, [step, formData.metodoPagamento, pixData.status, verificarPagamento]);
+
+  // Handlers de submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await enviarCompraParaBackend();
       setStep(2);
-    } catch (err) {
-      console.error('Erro no envio:', err);
+    } catch (error) {
+      console.error('Erro no submit:', error);
     }
   };
 
-  // Manipulador de confirmação de pagamento
-  const handlePaymentConfirmation = () => {
-    setPaymentConfirmed(true);
-    setStep(3);
+  const handlePaymentConfirmation = async () => {
+    try {
+      const paid = await verificarPagamento();
+      if (!paid) {
+        setError('Pagamento ainda não confirmado. Tente novamente em alguns instantes.');
+      }
+    } catch (error) {
+      setError('Erro ao verificar pagamento. Tente novamente.');
+    }
   };
 
-  // Renderização condicional para o passo de pagamento com PIX
-  const renderPixPayment = () => (
-    <>
-      <h2 className="section-title">Pagamento via Pix</h2>
-      <p className="payment-instructions">
-        Escaneie o QR Code abaixo ou copie o código para pagar via Pix. 
-        O código expira em <strong>{formatTime(timeLeft)}</strong>.
-      </p>
-
-      <div className="qr-code-container">
-        {pixData?.qrCodeBase64 ? (
-          <img 
-            src={`data:image/png;base64,${pixData.qrCodeBase64}`} 
-            alt="QR Code PIX"
-            className="qr-code-image"
-          />
-        ) : (
-          <QRCodeSVG
-            value={pixData?.payload || ''}
-            size={256}
-            level="H"
-            includeMargin={true}
-          />
-        )}
-      </div>
-
-      <div className="payment-details">
-        <div className="detail-row">
-          <span>Valor:</span>
-          <strong>R$ {formatCurrency(pixData?.valor || 0)}</strong>
+  // Renderização do PIX
+  const renderPixPayment = () => {
+    if (!pixData.payload && !pixData.qrCodeBase64) {
+      return (
+        <div className="pix-loading">
+          <p>Carregando dados do PIX...</p>
+          {error}
+          {<div className="spinner"></div>}
+          {<p className="error-text">{error}</p>}
         </div>
-        <div className="detail-row">
-          <span>Beneficiário:</span>
-          <strong>{merchantInfo.name}</strong>
-        </div>
-      </div>
+      );
+    }
 
-      {pixData?.payload && (
-        <div className="pix-code-container">
-          <label>Código Pix (copie e cole no seu app):</label>
-          <div className="pix-code-wrapper">
-            <code className="pix-code">{pixData.payload}</code>
-            <button 
-              onClick={copyToClipboard}
-              className="copy-button"
-            >
-              {copySuccess ? 'Copiado!' : 'Copiar'}
+    return (
+      <div className="pix-payment-container">
+        <h2 className="section-title">Pagamento via Pix</h2>
+        
+        {pixData.status === 'expired' ? (
+          <div className="pix-expired">
+            <p>O QR Code expirou. Por favor, inicie uma nova compra.</p>
+            <button onClick={() => navigate('/')} className="submit-button">
+              VOLTAR À LOJA
             </button>
           </div>
+        ) : (
+          <>
+            <p className="payment-instructions">
+              Escaneie o QR Code ou copie o código.
+              {pixData.status === 'aguardando_pagamento' && (
+                <> Expira em <strong>{formatTime(timeLeft)}</strong></>
+              )}
+              {pixData.status === 'paid' && (
+                <span className="payment-success">✓ Pagamento confirmado!</span>
+              )}
+            </p>
+
+            <div className="qr-code-container">
+              {pixData.qrCodeBase64 ? (
+                <img
+                  src={`data:image/png;base64,${pixData.qrCodeBase64}`}
+                  alt="QR Code Pix"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
+              ) : null}
+              
+              {(!pixData.qrCodeBase64 || pixData.status === 'paid') && (
+                <QRCodeSVG 
+                  value={pixData.payload} 
+                  size={256}
+                  level="H"
+                  includeMargin
+                />
+              )}
+            </div>
+
+            <div className="payment-details">
+              <div className="detail-row">
+                <span>Valor:</span>
+                <strong>{formatCurrency(pixData.valor)}</strong>
+              </div>
+              <div className="detail-row">
+                <span>Beneficiário:</span>
+                <strong>{merchantInfo.name}</strong>
+              </div>
+              <div className="detail-row">
+                <span>Identificador:</span>
+                <strong>#{pixData.transactionId}</strong>
+              </div>
+            </div>
+
+            {pixData.payload && (
+              <div className="pix-code-container">
+                <label>Código Pix (Copia e Cola):</label>
+                <div className="pix-code-wrapper">
+                  <textarea 
+                    className="pix-code" 
+                    value={pixData.payload} 
+                    readOnly 
+                    rows={3}
+                  />
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(pixData.payload);
+                      setCopySuccess(true);
+                      setTimeout(() => setCopySuccess(false), 2000);
+                    }}
+                    className="copy-button"
+                  >
+                    {copySuccess ? 'Copiado!' : 'Copiar'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {pixData.status === 'pending' && (
+              <button
+                onClick={handlePaymentConfirmation}
+                disabled={isVerifyingPayment}
+                className="submit-button"
+              >
+                {isVerifyingPayment ? 'VERIFICANDO...' : 'JÁ PAGUEI'}
+              </button>
+            )}
+          </>
+        )}
+      </div>
+    );
+  };
+
+  // Renderização do Boleto
+  const renderBoletoPayment = () => {
+    return (
+      <div className="boleto-payment-container">
+        <h2 className="section-title">Pagamento via Boleto Bancário</h2>
+        <div className="boleto-instructions">
+          <p>Seu boleto foi gerado com sucesso!</p>
+          <div className="detail-row">
+            <span>Valor:</span>
+            <strong>{formatCurrency(formData.precoTotal)}</strong>
+          </div>
+          <div className="detail-row">
+            <span>Vencimento:</span>
+            <strong>{new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-BR')}</strong>
+          </div>
+          <div className="detail-row">
+            <span>Código:</span>
+            <strong>{numeroPedido}</strong>
+          </div>
+          
+          <button 
+            className="submit-button"
+            onClick={() => {
+              window.open(boletoUrl || '#', '_blank');
+            }}
+          >
+            IMPRIMIR BOLETO
+          </button>
+          
+          <button 
+            onClick={() => setStep(3)}
+            className="submit-button secondary"
+          >
+            JÁ PAGUEI O BOLETO
+          </button>
         </div>
-      )}
+      </div>
+    );
+  };
 
-      <button
-        onClick={handlePaymentConfirmation}
-        disabled={isLoading}
-        className="submit-button"
-      >
-        {isLoading ? 'CONFIRMANDO...' : 'JÁ PAGUEI'}
-      </button>
-    </>
-  );
+  // Renderização do Cartão
+  const renderCartaoPayment = () => {
+    return (
+      <div className="cartao-payment-container">
+        <h2 className="section-title">Pagamento via Cartão de Crédito</h2>
+        <div className="payment-success">
+          <div className="success-icon">✓</div>
+          <p>Pagamento processado com sucesso!</p>
+          <div className="detail-row">
+            <span>Valor:</span>
+            <strong>{formatCurrency(formData.precoTotal)}</strong>
+          </div>
+          <div className="detail-row">
+            <span>Parcelas:</span>
+            <strong>
+              {formData.parcelas}x de {formatCurrency(formData.precoTotal / formData.parcelas)}
+            </strong>
+          </div>
+          <div className="detail-row">
+            <span>Nº do Pedido:</span>
+            <strong>#{numeroPedido}</strong>
+          </div>
+          
+          <button 
+            onClick={() => setStep(3)}
+            className="submit-button"
+          >
+            CONTINUAR
+          </button>
+        </div>
+      </div>
+    );
+  };
 
-  // Renderização condicional para o passo de confirmação
+  // Renderização da confirmação
   const renderConfirmation = () => (
     <div className="confirmation-section">
       <div className="confirmation-icon">✓</div>
@@ -389,12 +572,12 @@ const FinalizarCompra = () => {
       <div className="order-details">
         <h3>Detalhes do Pedido</h3>
         <div className="detail-row">
-          <span>Número do Pedido:</span>
+          <span>Nº do Pedido:</span>
           <span>#{numeroPedido}</span>
         </div>
         <div className="detail-row">
           <span>Valor:</span>
-          <span>R$ {formatCurrency(formData.precoTotal)}</span>
+          <span>{formatCurrency(formData.precoTotal)}</span>
         </div>
         <div className="detail-row">
           <span>Método:</span>
@@ -403,7 +586,9 @@ const FinalizarCompra = () => {
         {formData.metodoPagamento === 'Cartão de Crédito' && (
           <div className="detail-row">
             <span>Parcelas:</span>
-            <span>{formData.parcelas}x de R$ {formatCurrency(formData.precoTotal / formData.parcelas)}</span>
+            <span>
+              {formData.parcelas}x de {formatCurrency(formData.precoTotal / formData.parcelas)}
+            </span>
           </div>
         )}
         <div className="detail-row">
@@ -418,26 +603,39 @@ const FinalizarCompra = () => {
           <span>{new Date().toLocaleDateString('pt-BR')}</span>
         </div>
       </div>
-
-      <VeiculoInfo veiculo={state?.veiculo} />
-
+      
+      <VeiculoInfo veiculo={carrinhoData.veiculo} />
+      
       <div className="confirmation-actions">
-        <button
-          onClick={() => navigate('/')}
-          className="submit-button"
-        >
+        <button onClick={() => navigate('/')} className="submit-button">
           VOLTAR À LOJA
         </button>
-        <button
-          onClick={() => window.print()}
-          className="submit-button secondary"
-        >
+        <button onClick={() => window.print()} className="submit-button secondary">
           IMPRIMIR COMPROVANTE
         </button>
       </div>
     </div>
   );
 
+  // Renderização condicional se não houver veículo
+  if (!carrinhoData.Itens) {
+    return (
+      <div className="finalizar-compra-container">
+        <div className="compra-box">
+          <h2>Nenhum veículo selecionado</h2>
+          <p>Por favor, selecione um veículo no carrinho antes de finalizar a compra.</p>
+          <button 
+            onClick={() => navigate('/carrinho')}
+            className="submit-button"
+          >
+            VOLTAR AO CARRINHO
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Renderização normal
   return (
     <div className="finalizar-compra-container">
       <div className="compra-box">
@@ -446,15 +644,11 @@ const FinalizarCompra = () => {
           <ProgressSteps currentStep={step} />
         </div>
 
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
+        {error && <div className="error-message">{error}</div>}
 
         {step === 1 && (
           <form onSubmit={handleSubmit} className="compra-form">
-            <VeiculoInfo veiculo={state?.veiculo} />
+            <VeiculoInfo veiculo={carrinhoData.veiculo} />
 
             <h2 className="section-title">Endereço de Entrega</h2>
 
@@ -469,7 +663,7 @@ const FinalizarCompra = () => {
                 maxLength="9"
                 required
               />
-              {isConsultingCep && <span className="loading-text">Consultando...</span>}
+              {isConsultingCep && <span className="loading-text">Consultando…</span>}
             </div>
 
             <div className="form-group">
@@ -534,8 +728,8 @@ const FinalizarCompra = () => {
                   name="estado"
                   value={formData.estado}
                   onChange={handleChange}
-                  required
                   maxLength="2"
+                  required
                 />
               </div>
             </div>
@@ -622,9 +816,9 @@ const FinalizarCompra = () => {
                     value={formData.parcelas}
                     onChange={handleParcelasChange}
                   >
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(num => (
-                      <option key={num} value={num}>
-                        {num}x de R$ {formatCurrency(formData.precoTotal / num)}
+                    {[...Array(12)].map((_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {i + 1}x de {formatCurrency(formData.precoTotal / (i + 1))}
                       </option>
                     ))}
                   </select>
@@ -633,24 +827,32 @@ const FinalizarCompra = () => {
             )}
 
             <div className="total-section">
-              <h3>Total: R$ {formatCurrency(formData.precoTotal)}</h3>
+              <h3>Total: {formatCurrency(formData.precoTotal)}</h3>
               {formData.metodoPagamento === 'Pix' && (
-                <p className="discount-text">Você economizou R$ {formatCurrency(formData.precoTotal * 0.05)} com Pix!</p>
+                <p className="discount-text">
+                  Você economizou {formatCurrency(formData.precoTotal * 0.05)} pagando com Pix!
+                </p>
               )}
             </div>
 
             <button type="submit" className="submit-button" disabled={isLoading}>
-              {isLoading ? 'PROCESSANDO...' : 'CONTINUAR PARA PAGAMENTO'}
+              {isLoading ? 'PROCESSANDO…' : 'CONTINUAR PARA PAGAMENTO'}
             </button>
           </form>
         )}
 
-        {step === 2 && formData.metodoPagamento === 'Pix' && renderPixPayment()}
+        {step === 2 && (
+          <>
+            {formData.metodoPagamento === 'Pix' && renderPixPayment()}
+            {formData.metodoPagamento === 'Boleto' && renderBoletoPayment()}
+            {formData.metodoPagamento === 'Cartão de Crédito' && renderCartaoPayment()}
+          </>
+        )}
+
         {step === 3 && renderConfirmation()}
 
         <div className="compra-footer">
-          <p>Problemas com seu pedido? Contate nosso suporte:</p>
-          <p>{merchantInfo.email} | {merchantInfo.phone}</p>
+          Problemas com seu pedido? Contate: {merchantInfo.email} | {merchantInfo.phone}
         </div>
       </div>
     </div>

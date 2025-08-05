@@ -1,91 +1,421 @@
+/* styles/Aluguel.css */
+
 .aluguel-container {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
-  font-family: 'Segoe UI', sans-serif;
+  padding: 2rem 1rem;
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
   color: #333;
-  background: #f4f7f9;
-  border-radius: 12px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.05);
+  line-height: 1.6;
 }
 
-h1 {
+.aluguel-header {
   text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.aluguel-header h1 {
   color: #2c3e50;
-}
-
-.toggle-btn {
-  background: #2c3e50;
-  color: #fff;
-  padding: 10px 20px;
-  margin: 1rem 0;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.toggle-btn:hover {
-  background: #34495e;
-}
-
-.form-card {
-  background: #ffffff;
-  padding: 1.5rem;
-  border-radius: 8px;
-  display: grid;
-  gap: 15px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  margin-bottom: 2rem;
-}
-
-.form-card h2 {
+  font-size: 2.5rem;
   margin-bottom: 0.5rem;
 }
 
-.form-card input,
-.form-card select {
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
+.aluguel-header p {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  max-width: 700px;
+  margin: 0 auto;
 }
 
-.form-card button {
-  background-color: #27ae60;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s;
+/* Seção de Veículos Disponíveis */
+.veiculos-disponiveis {
+  margin-bottom: 4rem;
 }
 
-.form-card button:hover {
-  background-color: #219150;
+.veiculos-disponiveis h2 {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #3498db;
 }
 
-.aluguel-table {
-  width: 100%;
-  border-collapse: collapse;
+.carros-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
   margin-top: 1.5rem;
-  background: white;
-  border-radius: 8px;
+}
+
+.carro-card {
+  
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.carro-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+.carro-imagem {
+  height: 200px;
   overflow: hidden;
 }
 
-.aluguel-table th,
-.aluguel-table td {
-  padding: 12px 15px;
-  border: 1px solid #ddd;
+.carro-imagem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.carro-card:hover .carro-imagem img {
+  transform: scale(1.05);
+}
+
+.carro-info {
+  padding: 1.5rem;
+}
+
+.carro-info h3 {
+  margin: 0 0 0.5rem;
+  color: #2c3e50;
+  font-size: 1.3rem;
+}
+
+.carro-info p {
+  margin: 0.3rem 0;
+  color: #7f8c8d;
+}
+
+.alugar-btn {
+  display: inline-block;
+  background: #3498db;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  margin-top: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s;
+  width: 100%;
   text-align: center;
 }
 
-.aluguel-table thead {
-  background: #2c3e50;
+.alugar-btn:hover {
+  background: #2980b9;
+}
+
+/* Formulário de Aluguel */
+.form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.form-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+  position: relative;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.form-header h2 {
+  color: #2c3e50;
+  margin: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #7f8c8d;
+  transition: color 0.3s;
+  padding: 0.5rem;
+}
+
+.close-btn:hover {
+  color: #e74c3c;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-row .form-group {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: border 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+.form-error {
+  color: #e74c3c;
+  background: #fde8e8;
+  padding: 0.8rem;
+  border-radius: 5px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.submit-btn {
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: background 0.3s;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.submit-btn:hover {
+  background: #219653;
+}
+
+.submit-btn:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
+/* Seção de Histórico */
+.historico-alugueis {
+  margin-top: 3rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-header h2 {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+.filtros {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filtros button {
+  background: #ecf0f1;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.filtros button.active {
+  background: #3498db;
   color: white;
 }
 
-.aluguel-table tr:nth-child(even) {
-  background: #f2f2f2;
+.filtros button:hover {
+  background: #bdc3c7;
+}
+
+.filtros button.active:hover {
+  background: #2980b9;
+}
+
+.alugueis-table-container {
+  overflow-x: auto;
+}
+
+.alugueis-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.alugueis-table th,
+.alugueis-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.alugueis-table th {
+  background: #3498db;
+  color: white;
+  font-weight: 500;
+}
+
+.alugueis-table tr:hover {
+  background: #f8f9fa;
+}
+
+.veiculo-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.veiculo-info strong {
+  margin-bottom: 0.3rem;
+}
+
+.veiculo-info span {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.status-badge.pendente {
+  background: #f39c12;
+  color: white;
+}
+
+.status-badge.confirmado {
+  background: #27ae60;
+  color: white;
+}
+
+.status-badge.cancelado {
+  background: #e74c3c;
+  color: white;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #3498db;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 2rem auto;
+}
+
+.spinner {
+  display: inline-block;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top: 2px solid white;
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  background: #fde8e8;
+  color: #e74c3c;
+  padding: 1rem;
+  border-radius: 5px;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.no-results {
+  text-align: center;
+  color: #7f8c8d;
+  padding: 2rem;
+  background: #f8f9fa;
+  border-radius: 5px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .carros-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .alugueis-table th,
+  .alugueis-table td {
+    padding: 0.8rem 0.5rem;
+    font-size: 0.9rem;
+  }
 }

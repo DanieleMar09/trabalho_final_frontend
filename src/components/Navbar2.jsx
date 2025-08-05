@@ -11,7 +11,7 @@ const Navbar2 = () => {
           <li><Link to="/">HOME</Link></li>
           <li><Link to="/novos">NOVOS</Link></li>
           <li><Link to="/seminovos">SEMI-NOVOS</Link></li>
-          <li><Link to="/aluguel">ALUGUEL</Link></li>
+ 
         </ul>
       </div>
       
