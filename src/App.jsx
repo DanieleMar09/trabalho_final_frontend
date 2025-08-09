@@ -21,6 +21,9 @@ import Footer from './components/Footer';
 import FinalizarCompra from './components/FinalizarCompra';
 import ScrollToTop from './components/ScrollToTop';
 import Contato from './components/Contato';
+import Admin from './components/Admin';
+import Agendamentos from './components/Agendamentos';
+
 
 
 import { FaWhatsapp } from 'react-icons/fa';
@@ -62,6 +65,8 @@ const App = () => {
         <Route path="/configuracoes" element={<Configuracoes />} />
          <Route path="/finalizar" element={<FinalizarCompra />} />
                <Route path="/contatos" element={<Contato />} />
+               <Route path="/admin" element={<Admin />} />
+                <Route path="/agendamentos" element={<Agendamentos />} />
       </Routes>
 
       <Footer />

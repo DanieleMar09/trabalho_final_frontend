@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import '../styles/RedefinirSenha.css';
+import '../styles/Login.css'; // Seu CSS geral
 
 export default function RedefinirSenha() {
   const navigate = useNavigate();
@@ -131,36 +131,76 @@ export default function RedefinirSenha() {
   }
 
   return (
-    <div className="redefinir-container">
-      <div className="redefinir-card">
-        <h2 className="titulo-redefinir">redefinir senha</h2>
-        <button className="btn-voltar" onClick={() => navigate(-1)}>
+    <div className="login-container">
+      {/* Lado esquerdo com imagem */}
+      <aside className="image-side">
+        <div className="overlay-gradient" />
+        <div className="text-content">
+          <h1>Redefina sua senha</h1>
+          <p>Recupere o acesso à sua conta em poucos passos simples</p>
+        </div>
+      </aside>
+
+      {/* Lado direito com formulário */}
+      <main className="form-side" aria-label="Formulário de redefinição de senha">
+        {/* BOTÃO VOLTAR */}
+        <button 
+          className="btn-voltar" 
+          onClick={() => navigate(-1)}
+          aria-label="Voltar para página anterior"
+        >
           &larr; Voltar
         </button>
-        
-        {mensagem && <div className={`mensagem ${tipoMensagem}`}>{mensagem}</div>}
+
+        <h2 className="titulo-redefinir">REDEFINIR senha</h2>
+
+        {mensagem && (
+          <div 
+            className={`mensagem ${tipoMensagem}`} 
+            role="alert"
+            aria-live="assertive"
+          >
+            {mensagem}
+          </div>
+        )}
 
         {etapa === 1 && (
-          <form onSubmit={solicitarReset}>
+          <form onSubmit={solicitarReset} className="form-redefinir">
             <div className="form-group">
+              <label htmlFor="email" className="visually-hidden">E-mail</label>
               <input
                 type="email"
+                id="email"
                 placeholder="Digite seu Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={carregando}
+                autoComplete="email"
               />
             </div>
-            <button type="submit" className="btn-primario" disabled={carregando}>
+            <button 
+              type="submit" 
+              className="submit-btn" 
+              disabled={carregando}
+              aria-busy={carregando}
+            >
               {carregando ? 'Enviando...' : 'Enviar Código'}
             </button>
           </form>
         )}
 
         {etapa === 2 && (
-          <form onSubmit={verificarCodigo}>
+          <form onSubmit={verificarCodigo} className="form-redefinir">
             <div className="form-group">
-              <input type="email" value={email} disabled />
+              <label htmlFor="email-disabled" className="visually-hidden">E-mail</label>
+              <input 
+                type="email" 
+                id="email-disabled" 
+                value={email} 
+                disabled 
+                aria-readonly="true"
+              />
             </div>
             <div className="form-group">
               <label htmlFor="codigo">Código de Verificação</label>
@@ -172,20 +212,34 @@ export default function RedefinirSenha() {
                 onChange={(e) => setCodigo(e.target.value.replace(/\D/g, '').slice(0, 6))}
                 maxLength={6}
                 required
+                disabled={carregando}
+                aria-describedby="codigo-help"
               />
-              <small>Verifique sua caixa de entrada e spam</small>
+              <small id="codigo-help">Verifique sua caixa de entrada e spam</small>
             </div>
-            <button type="submit" className="btn-primario" disabled={carregando}>
-              {carregando ? 'Verificando...' : 'Verificar Código'}
-            </button>
-            <button type="button" className="btn-link" onClick={() => setEtapa(1)}>
-              Voltar
-            </button>
+            <div className="botoes-duplos">
+              <button 
+                type="submit" 
+                className="submit-btn" 
+                disabled={carregando}
+                aria-busy={carregando}
+              >
+                {carregando ? 'Verificando...' : 'Verificar Código'}
+              </button>
+              <button 
+                type="button" 
+                className="btn-link" 
+                onClick={() => setEtapa(1)}
+                disabled={carregando}
+              >
+                Voltar
+              </button>
+            </div>
           </form>
         )}
 
         {etapa === 3 && (
-          <form onSubmit={resetarSenha}>
+          <form onSubmit={resetarSenha} className="form-redefinir">
             <div className="form-group">
               <label htmlFor="novaSenha">Nova Senha</label>
               <input
@@ -196,6 +250,7 @@ export default function RedefinirSenha() {
                 onChange={(e) => setNovaSenha(e.target.value)}
                 minLength={6}
                 required
+                disabled={carregando}
               />
             </div>
             <div className="form-group">
@@ -208,17 +263,32 @@ export default function RedefinirSenha() {
                 onChange={(e) => setConfirmarSenha(e.target.value)}
                 minLength={6}
                 required
+                disabled={carregando}
+                aria-describedby="senha-help"
               />
+              <small id="senha-help">As senhas devem coincidir</small>
             </div>
-            <button type="submit" className="btn-primario" disabled={carregando}>
-              {carregando ? 'Redefinindo...' : 'Redefinir Senha'}
-            </button>
-            <button type="button" className="btn-link" onClick={() => setEtapa(2)}>
-              Voltar
-            </button>
+            <div className="botoes-duplos">
+              <button 
+                type="submit" 
+                className="submit-btn" 
+                disabled={carregando}
+                aria-busy={carregando}
+              >
+                {carregando ? 'Redefinindo...' : 'Redefinir Senha'}
+              </button>
+              <button 
+                type="button" 
+                className="btn-link" 
+                onClick={() => setEtapa(2)}
+                disabled={carregando}
+              >
+                Voltar
+              </button>
+            </div>
           </form>
         )}
-      </div>
+      </main>
     </div>
   );
 }

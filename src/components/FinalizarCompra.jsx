@@ -4,8 +4,8 @@ import axios from 'axios';
 import { QRCodeSVG } from 'qrcode.react';
 import '../styles/FinalizaCompra.css';
 
-// Configurações - ATUALIZE ESTES VALORES!
-const API_BASE_URL = 'https://localhost:7239/api/CompraFinalizada'; // Substitua pela sua URL real
+// Configurações - ATUALIZE COM SEUS ENDPOINTS REAIS!
+const API_BASE_URL = 'https://localhost:7239/api/Pedidos';
 const PIX_EXPIRATION_TIME = 1800; // 30 minutos em segundos
 
 // Componente de Progresso
@@ -102,8 +102,7 @@ const FinalizarCompra = () => {
 
   // Verificação inicial do veículo
   useEffect(() => {
-    console.log(carrinhoData);
-    if (!carrinhoData.Itens) {
+    if (!carrinhoData || !carrinhoData.carrosId) {
       setError('Nenhum veículo selecionado. Redirecionando...');
       const timer = setTimeout(() => navigate('/carrinho'), 3000);
       return () => clearTimeout(timer);
@@ -187,87 +186,57 @@ const FinalizarCompra = () => {
         cep: formData.cep,
         logradouro: formData.endereco,
         numero: formData.numero,
-        complemento: formData.complemento,
+        complemento: formData.complemento || null,
         bairro: formData.bairro,
         cidade: formData.cidade,
         uf: formData.estado
       };
-      
-        console.log(carrinhoData);
 
+      // Payload corrigido para o backend
       const payload = {
-        UsuarioId: carrinhoData.usuariosId || 1,
-        ProdutoId: carrinhoData.carrosId,
-        Preco: formData.precoTotal,
-        FormaPagamento: formData.metodoPagamento === 'Pix' ? 0 : 
-                       formData.metodoPagamento === 'Boleto' ? 'boleto' : 'cartao',
-        Observacoes: formData.observacoes,
-        EnderecoEntrega: enderecoEntrega,
-        Parcelas: formData.metodoPagamento === 'Cartão de Crédito' ? formData.parcelas : null,
-        Cartao: formData.metodoPagamento === 'Cartão de Crédito' ? {
+        usuarioId: carrinhoData.usuariosId || 1, // ID do usuário
+        veiculoId: carrinhoData.carrosId, // ID do veículo
+        precoTotal: formData.precoTotal,
+        metodoPagamento: formData.metodoPagamento === 'Pix' ? 1 : 
+                       formData.metodoPagamento === 'Boleto' ? 2 : 3,
+        observacoes: formData.observacoes || null,
+        enderecoEntrega: enderecoEntrega,
+        parcelas: formData.metodoPagamento === 'Cartão de Crédito' ? formData.parcelas : null,
+        dadosCartao: formData.metodoPagamento === 'Cartão de Crédito' ? {
           numero: formData.cartaoNumero.replace(/\s/g, ''),
           validade: formData.cartaoValidade,
           cvv: formData.cartaoCVV,
-          nome: formData.cartaoNome
+          nomeTitular: formData.cartaoNome
         } : null
       };
 
-      console.log('Enviando payload:', payload);
-
-      console.log(carrinhoData);
-
-      // MOCK PARA DESENVOLVIMENTO - REMOVA EM PRODUÇÃO
-      if (API_BASE_URL.includes('sua-api')) {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        const mockResponse = {
-          numeroPedido: `MOCK-${Date.now()}`,
-          qrCode: "iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAA1BMVEX///+nxBvIAAAAAXRSTlMAQObYZgAAABlJREFUeNrtwTEBAAAAwiD7p7bGDmAAAAAAAAAAAAAA4G0HVwAAB9nYmgAAAABJRU5ErkJggg==",
-          codigoPix: "00020126360014BR.GOV.BCB.PIX0136123e4567-e12b-12d3-a456-426655440000520400005303986540510.005802BR5913FULANO DE TAL6008BRASILIA62070503***6304A1B2",
-          valor: formData.precoTotal,
-          idTransacao: `MOCK-${Date.now()}`,
-          expiracao: PIX_EXPIRATION_TIME * 1000
-        };
-        
-        setPixData({
-          qrCodeBase64: mockResponse.qrCode,
-          payload: mockResponse.codigoPix,
-          valor: mockResponse.valor,
-          transactionId: mockResponse.idTransacao,
-          expiresAt: Date.now() + mockResponse.expiracao,
-          status: 'pending'
-        });
-        
-        setNumeroPedido(mockResponse.numeroPedido);
-        setTimeLeft(Math.floor(mockResponse.expiracao / 1000));
-        return mockResponse;
-      }
-
-      // CÓDIGO REAL PARA PRODUÇÃO
+      // Envio para API
       const response = await axios.post(`${API_BASE_URL}`, payload, {
         headers: {
           'Content-Type': 'application/json',
         }
       });
 
+      // Tratamento da resposta para diferentes métodos
       if (formData.metodoPagamento === 'Pix') {
         setPixData({
-          qrCodeBase64: response.data.qrCode,
+          qrCodeBase64: response.data.qrCodeBase64,
           payload: response.data.codigoPix,
           valor: response.data.valor || formData.precoTotal,
-          transactionId: response.data.idTransacao,
-          expiresAt: Date.now() + (response.data.expiracao || PIX_EXPIRATION_TIME * 1000),
-          status: 'pending'
+          transactionId: response.data.transactionId,
+          expiresAt: Date.now() + (response.data.expiracao * 1000),
+          status: 'aguardando_pagamento'
         });
-        setTimeLeft(response.data.expiracao ? 
-          Math.floor(response.data.expiracao / 1000) : 
-          PIX_EXPIRATION_TIME
-        );
+        setTimeLeft(response.data.expiracao || PIX_EXPIRATION_TIME);
       } else if (formData.metodoPagamento === 'Boleto') {
-        setBoletoUrl(response.data.urlBoleto || `${API_BASE_URL}/boleto/${response.data.numeroPedido}`);
+        setBoletoUrl(response.data.urlBoleto);
       }
 
       setNumeroPedido(response.data.numeroPedido);
+      
+      // Limpar carrinho após compra
+      localStorage.removeItem('carrinho');
+
       return response.data;
 
     } catch (error) {
@@ -275,9 +244,13 @@ const FinalizarCompra = () => {
       let errorMessage = 'Erro ao processar pagamento';
       
       if (error.response) {
-        errorMessage = error.response.data?.message || 
-                     error.response.data?.erro || 
-                     `Erro no servidor (${error.response.status})`;
+        if (error.response.status === 400) {
+          errorMessage = 'Dados inválidos: ' + (error.response.data.errors 
+            ? Object.values(error.response.data.errors).join(', ')
+            : error.response.data.message);
+        } else {
+          errorMessage = `Erro no servidor (${error.response.status}): ${error.response.data.message || error.response.statusText}`;
+        }
       } else if (error.request) {
         errorMessage = 'Sem resposta do servidor. Verifique sua conexão.';
       }
@@ -296,21 +269,9 @@ const FinalizarCompra = () => {
     try {
       setIsVerifyingPayment(true);
       
-      // MOCK PARA DESENVOLVIMENTO
-      if (API_BASE_URL.includes('sua-api')) {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        // Simula pagamento confirmado após 30 segundos
-        if (Date.now() > pixData.expiresAt - (PIX_EXPIRATION_TIME * 1000 - 30000)) {
-          setPixData(prev => ({...prev, status: 'paid'}));
-          setStep(3);
-          return true;
-        }
-        return false;
-      }
-
-      // CÓDIGO REAL PARA PRODUÇÃO
+      // Código para produção
       const response = await axios.get(
-        `${API_BASE_URL}/pedidos/verificar-pagamento/${pixData.transactionId}`
+        `${API_BASE_URL}/verificar-pagamento/${pixData.transactionId}`
       );
 
       if (response.data?.pago) {
@@ -326,7 +287,7 @@ const FinalizarCompra = () => {
     } finally {
       setIsVerifyingPayment(false);
     }
-  }, [pixData.transactionId, pixData.status, pixData.expiresAt]);
+  }, [pixData.transactionId, pixData.status]);
 
   // Efeitos para timer e verificação
   useEffect(() => {
@@ -383,9 +344,8 @@ const FinalizarCompra = () => {
       return (
         <div className="pix-loading">
           <p>Carregando dados do PIX...</p>
-          {error}
-          {<div className="spinner"></div>}
-          {<p className="error-text">{error}</p>}
+          {error && <p className="error-text">{error}</p>}
+          <div className="spinner"></div>
         </div>
       );
     }
@@ -604,7 +564,7 @@ const FinalizarCompra = () => {
         </div>
       </div>
       
-      <VeiculoInfo veiculo={carrinhoData.veiculo} />
+      <VeiculoInfo veiculo={carrinhoData.veiculo || carrinhoData} />
       
       <div className="confirmation-actions">
         <button onClick={() => navigate('/')} className="submit-button">
@@ -618,7 +578,7 @@ const FinalizarCompra = () => {
   );
 
   // Renderização condicional se não houver veículo
-  if (!carrinhoData.Itens) {
+  if (!carrinhoData || !carrinhoData.carrosId) {
     return (
       <div className="finalizar-compra-container">
         <div className="compra-box">
@@ -648,7 +608,7 @@ const FinalizarCompra = () => {
 
         {step === 1 && (
           <form onSubmit={handleSubmit} className="compra-form">
-            <VeiculoInfo veiculo={carrinhoData.veiculo} />
+            <VeiculoInfo veiculo={carrinhoData.veiculo || carrinhoData} />
 
             <h2 className="section-title">Endereço de Entrega</h2>
 

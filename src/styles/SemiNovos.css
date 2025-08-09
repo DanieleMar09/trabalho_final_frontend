@@ -1,7 +1,7 @@
-/* Estilo base - escuro */
+/* Tema Preto e Vermelho - CSS Atualizado */
 .seminos-container {
   padding: 100px 20px 40px;
-  background-color: #121212;
+  background-color: #0a0a0a; /* Preto mais intenso */
   margin-top: 35px;
   min-height: 100vh;
   text-align: center;
@@ -10,14 +10,14 @@
 
 .seminos-titulo {
   font-size: 2.8rem;
-  color: #e50914;
+  color: #e50914; /* Vermelho Netflix */
   margin-bottom: 20px;
   border-bottom: 2px solid #e50914;
   display: inline-block;
   padding-bottom: 5px;
+  text-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
 }
 
-/* Filtros */
 .seminos-filtros {
   display: flex;
   justify-content: center;
@@ -27,32 +27,31 @@
   margin-bottom: 40px;
 }
 
-.seminos-pesquisa-input,
-.seminos-preco-select {
+.seminos-pesquisa-input {
   padding: 10px 15px;
   border-radius: 8px;
   border: none;
   font-size: 1rem;
-  background-color: #1f1f1f;
+  background-color: #1a1a1a; /* Preto mais escuro */
   color: #fff;
   outline: none;
   transition: border-color 0.3s, transform 0.3s;
-  max-width: 250px;
+  max-width: 300px;
   width: 100%;
   box-sizing: border-box;
+  border: 1px solid #333;
 }
 
 .seminos-pesquisa-input::placeholder {
-  color: #888;
+  color: #777;
 }
 
-.seminos-pesquisa-input:focus,
-.seminos-preco-select:focus {
+.seminos-pesquisa-input:focus {
   border: 2px solid #e50914;
   transform: scale(1.03);
+  box-shadow: 0 0 8px rgba(229, 9, 20, 0.5);
 }
 
-/* Grade de carros */
 .seminos-grid {
   display: flex;
   flex-wrap: wrap;
@@ -62,23 +61,25 @@
 }
 
 .seminos-card {
-  background-color: #181818;
+  background-color: #141414; /* Preto mais escuro */
   border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
   width: calc(25% - 30px);
   min-width: 260px;
   padding: 20px;
   box-sizing: border-box;
   text-align: left;
-  color: #dcdcdc;
+  color: #e0e0e0;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
+  border: 1px solid #333;
 }
 
 .seminos-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+  box-shadow: 0 8px 20px rgba(229, 9, 20, 0.3);
+  border-color: #e50914;
 }
 
 .seminos-card-imagem {
@@ -86,6 +87,17 @@
   overflow: hidden;
   border-radius: 8px;
   margin-bottom: 15px;
+  position: relative;
+}
+
+.seminos-card-imagem::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, transparent 60%, rgba(10, 10, 10, 0.9));
 }
 
 .seminos-card-imagem img {
@@ -104,37 +116,42 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #2b2b2b;
+  background: #1a1a1a;
   color: #999;
+  font-size: 0.9rem;
+  text-align: center;
+  border: 1px dashed #333;
 }
 
 .seminos-card-info h3 {
   font-size: 1.3rem;
   margin-bottom: 8px;
+  color: #fff;
 }
 
 .seminos-card-info p {
   margin: 3px 0;
+  color: #bbb;
 }
 
-.seminos-card-info .preco {
-  color: #4CAF50;
+.valor-diaria {
+  font-size: 1.2rem;
+  color: #e50914; /* Vermelho no lugar do verde */
   font-weight: bold;
   margin: 10px 0;
-  font-size: 1.2rem;
 }
 
-/* Botões */
-.seminos-card-acoes {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: auto;
+.info-aluguel {
+  background-color: rgba(229, 9, 20, 0.1); /* Vermelho com transparência */
+  border-radius: 4px;
+  padding: 5px;
+  margin: 8px 0;
+  font-size: 0.9rem;
+  border-left: 3px solid #e50914;
 }
 
-.seminos-comprar-btn, .detalhes-btn {
-  flex: 1;
-  padding: 10px;
+.seminos-comprar-btn {
+  padding: 12px;
   border: none;
   border-radius: 6px;
   font-weight: bold;
@@ -145,52 +162,18 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-}
-
-.seminos-comprar-btn {
-  background-color: #e50914;
+  background: linear-gradient(to right, #e50914, #b00610);
   color: #fff;
+  margin-top: auto;
+  font-size: 1rem;
 }
 
 .seminos-comprar-btn:hover {
-  background-color: #b00610;
+  background: linear-gradient(to right, #b00610, #8a000a);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(229, 9, 20, 0.3);
 }
 
-.detalhes-btn {
-  background-color: #1f1f1f;
-  color: white;
-  border: 1px solid #e50914;
-}
-
-.detalhes-btn:hover {
-  background-color: #e50914;
-  color: white;
-}
-
-/* Estados do botão Comprar */
-.seminos-comprar-btn.added {
-  background-color: #4CAF50;
-  cursor: default;
-}
-
-.seminos-comprar-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-/* Mensagem de filtro ativo */
-.filtro-ativo {
-  color: #ccc;
-  margin-bottom: 20px;
-  font-size: 1rem;
-  text-align: center;
-}
-
-.filtro-ativo strong {
-  color: #e50914;
-}
-
-/* Mensagem sem resultados */
 .seminos-sem-resultados {
   color: #bbb;
   font-size: 1.1rem;
@@ -199,9 +182,13 @@
   background: none;
   border-radius: 0;
   padding: 0;
+  border: 1px solid #333;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 500px;
+  margin: 30px auto;
 }
 
-/* Loading e Erro */
 .seminos-loading {
   display: flex;
   flex-direction: column;
@@ -213,7 +200,7 @@
 }
 
 .loading-spinner {
-  border: 4px solid rgba(255, 255, 255, 0.1);
+  border: 4px solid rgba(229, 9, 20, 0.1);
   border-radius: 50%;
   border-top: 4px solid #e50914;
   width: 40px;
@@ -226,13 +213,14 @@
 }
 
 .seminos-error {
-  background: #fde8e8;
-  color: #e74c3c;
+  background: #1a1a1a;
+  color: #ff6b6b;
   padding: 2rem;
   border-radius: 8px;
   text-align: center;
   max-width: 600px;
   margin: 2rem auto;
+  border: 1px solid #e50914;
 }
 
 .retry-button {
@@ -244,20 +232,20 @@
   margin-top: 1rem;
   cursor: pointer;
   transition: background 0.3s;
+  font-weight: bold;
 }
 
 .retry-button:hover {
   background: #b00610;
 }
 
-/* Modal de Aluguel */
 .seminos-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.85);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -265,13 +253,15 @@
 }
 
 .seminos-modal {
-  background-color: #1f1f1f;
+  background-color: #141414;
   padding: 30px;
   border-radius: 10px;
   width: 90%;
   max-width: 500px;
   position: relative;
   color: #fff;
+  box-shadow: 0 10px 25px rgba(229, 9, 20, 0.2);
+  border: 1px solid #333;
 }
 
 .seminos-modal-close {
@@ -283,12 +273,11 @@
   color: #fff;
   font-size: 1.5rem;
   cursor: pointer;
+  transition: color 0.3s;
 }
 
-.seminos-modal-titulo {
+.seminos-modal-close:hover {
   color: #e50914;
-  margin-bottom: 20px;
-  text-align: center;
 }
 
 .seminos-form-group {
@@ -299,6 +288,7 @@
   display: block;
   margin-bottom: 8px;
   font-weight: bold;
+  color: #e0e0e0;
 }
 
 .seminos-form-group input,
@@ -306,13 +296,54 @@
   width: 100%;
   padding: 10px;
   border-radius: 5px;
-  border: 1px solid #444;
-  background-color: #2b2b2b;
+  border: 1px solid #333;
+  background-color: #1a1a1a;
   color: #fff;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.seminos-form-group input:focus,
+.seminos-form-group textarea:focus {
+  border-color: #e50914;
+  outline: none;
+  box-shadow: 0 0 5px rgba(229, 9, 20, 0.3);
 }
 
 .seminos-form-group textarea {
   min-height: 80px;
+  resize: vertical;
+}
+
+.resumo-aluguel {
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 20px 0;
+  border: 1px solid #333;
+}
+
+.resumo-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  color: #bbb;
+}
+
+.destaque-valor {
+  font-weight: bold;
+  color: #e50914; /* Vermelho no lugar do verde */
+  font-size: 1.2rem;
+}
+
+.detalhes-aluguel {
+  background-color: #1a1a1a;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  border: 1px solid #333;
 }
 
 .seminos-modal-botoes {
@@ -322,45 +353,103 @@
 }
 
 .seminos-modal-cancelar {
-  background-color: #444;
+  background-color: #333;
   color: white;
   border: none;
   padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
+  flex: 1;
+  margin-right: 10px;
+  transition: background 0.3s;
+}
+
+.seminos-modal-cancelar:hover {
+  background-color: #444;
 }
 
 .seminos-modal-confirmar {
-  background-color: #e50914;
+  background: linear-gradient(to right, #e50914, #b00610);
   color: white;
   border: none;
   padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
+  flex: 1;
+  margin-left: 10px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.seminos-modal-confirmar:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
 }
 
 .seminos-modal-confirmar:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+  background: #6a6a6a;
 }
 
 .seminos-modal-error {
   color: #ff6b6b;
   margin-bottom: 20px;
   padding: 10px;
-  background-color: rgba(255, 0, 0, 0.1);
+  background-color: rgba(229, 9, 20, 0.1);
   border-radius: 5px;
+  border-left: 4px solid #e50914;
 }
 
 .seminos-aluguel-sucesso {
   text-align: center;
-  padding: 20px;
+  padding: 25px 30px;
+  background: linear-gradient(135deg, #0f8804, #0f8804); /* Gradiente vermelho */
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(2, 133, 9, 0.5);
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+  animation: successFadeIn 0.6s ease forwards;
 }
 
 .seminos-sucesso-icon {
-  font-size: 3rem;
-  color: #4CAF50;
-  margin: 20px 0;
+  font-size: 3.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 0 15px 0;
+  animation: bounceIcon 1.2s infinite ease-in-out;
+  display: inline-block;
+}
+
+@keyframes successFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceIcon {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.seminos-comprar-btn {
+  animation: pulse 2s infinite;
 }
 
 .spinner {
@@ -385,13 +474,9 @@
   .seminos-card {
     width: calc(50% - 30px);
   }
-
-  .seminos-pesquisa-input {
-    max-width: 200px;
-  }
-
-  .seminos-preco-select {
-    max-width: 150px;
+  
+  .seminos-titulo {
+    font-size: 2.3rem;
   }
 }
 
@@ -400,56 +485,22 @@
     width: 100%;
   }
 
-  .seminos-pesquisa-input {
-    max-width: 180px;
+  .seminos-modal-botoes {
+    flex-direction: column;
+    gap: 10px;
   }
 
-  .seminos-preco-select {
-    max-width: 140px;
+  .seminos-modal-cancelar,
+  .seminos-modal-confirmar {
+    margin: 5px 0;
+    width: 100%;
   }
-}
-
-.seminos-aluguel-sucesso {
-  text-align: center;
-  padding: 25px 30px;
-  background: linear-gradient(135deg, #2e7d32, #4caf50);
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.5);
-  color: #e6ffe6;
-  font-size: 1.2rem;
-  font-weight: 600;
-  position: relative;
-  overflow: hidden;
-  animation: successFadeIn 0.6s ease forwards;
-  max-width: 400px;
-  margin: 30px auto;
-  display: inline-block;
-}
-
-.seminos-sucesso-icon {
-  font-size: 3.5rem;
-  color: #a5d6a7;
-  margin: 0 0 15px 0;
-  animation: bounceIcon 1.2s infinite ease-in-out;
-  display: inline-block;
-}
-
-@keyframes successFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+  
+  .seminos-container {
+    padding: 80px 15px 30px;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes bounceIcon {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
+  
+  .seminos-titulo {
+    font-size: 2rem;
   }
 }

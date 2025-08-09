@@ -1,7 +1,7 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom"; // Importa o useNavigate
-import "../styles/Cadastro.css";
+import '../styles/Cadastro.css';
 
 export default function Cadastro() {
   const [formData, setFormData] = useState({
@@ -12,181 +12,234 @@ export default function Cadastro() {
     confirmarSenha: "",
   });
 
+  const [erros, setErros] = useState({});
   const [mensagem, setMensagem] = useState("");
   const [mensagemTipo, setMensagemTipo] = useState("");
-  const [erros, setErros] = useState({});
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const navigate = useNavigate(); // Hook de navegação
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-  const validarCampos = () => {
+  // Função para verificar email já cadastrado
+  async function verificarEmailExistente(email) {
+    try {
+      const response = await fetch(`https://localhost:7239/api/v1/usuarios/verificar-email?email=${encodeURIComponent(email)}`);
+      if (!response.ok) {
+        throw new Error("Erro ao verificar email");
+      }
+      const data = await response.json();
+      return data.exists; // true se email existe, false se não
+    } catch {
+      return false; // Em caso de erro, permite continuar (opcional: você pode tratar diferente)
+    }
+  }
+
+  // Função para verificar CPF já cadastrado
+  async function verificarCpfExistente(cpf) {
+    try {
+      const response = await fetch(`https://localhost:7239/api/v1/usuarios/verificar-cpf?cpf=${encodeURIComponent(cpf)}`);
+      if (!response.ok) {
+        throw new Error("Erro ao verificar CPF");
+      }
+      const data = await response.json();
+      return data.exists; // true se cpf existe, false se não
+    } catch {
+      return false;
+    }
+  }
+
+  const validarFormulario = () => {
     const novosErros = {};
 
-    if (!formData.nome.trim()) novosErros.nome = "Nome é obrigatório.";
-    if (!formData.email.trim()) novosErros.email = "E-mail é obrigatório.";
-    if (!formData.cpf.trim()) novosErros.cpf = "CPF é obrigatório.";
-
-    if (!formData.senha) {
-      novosErros.senha = "Senha é obrigatória.";
-    } else if (!/^(?=.*[A-Z])(?=.*\d).{8,}$/.test(formData.senha)) {
-      novosErros.senha = "Mínimo 8 caracteres, 1 maiúscula e 1 número.";
-    }
-
-    if (formData.senha !== formData.confirmarSenha) {
+    if (!formData.nome.trim()) novosErros.nome = "O nome é obrigatório.";
+    if (!formData.email.trim()) novosErros.email = "O e-mail é obrigatório.";
+    if (!formData.cpf.trim()) novosErros.cpf = "O CPF é obrigatório.";
+    if (!formData.senha) novosErros.senha = "A senha é obrigatória.";
+    if (formData.senha !== formData.confirmarSenha)
       novosErros.confirmarSenha = "As senhas não coincidem.";
-    }
 
     setErros(novosErros);
     return Object.keys(novosErros).length === 0;
   };
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErros({ ...erros, [e.target.name]: "" });
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMensagem("");
+    setMensagemTipo("");
+    setErros({});
 
-    if (!validarCampos()) return;
+    if (!validarFormulario()) {
+      setMensagem("Preencha todos os campos obrigatórios corretamente.");
+      setMensagemTipo("erro");
+      return;
+    }
 
-    const usuario = {
-      id: 0,
-      nome: formData.nome,
-      email: formData.email,
-      cpf: formData.cpf,
-      senha: formData.senha,
-    };
+    setLoading(true);
+
+    // Verificações assíncronas se email e cpf já existem
+    const [emailExiste, cpfExiste] = await Promise.all([
+      verificarEmailExistente(formData.email),
+      verificarCpfExistente(formData.cpf),
+    ]);
+
+    const novosErros = {};
+    if (emailExiste) novosErros.email = "Este e-mail já está cadastrado.";
+    if (cpfExiste) novosErros.cpf = "Este CPF já está cadastrado.";
+
+    if (Object.keys(novosErros).length > 0) {
+      setErros(novosErros);
+      setMensagem("Corrija os erros antes de enviar.");
+      setMensagemTipo("erro");
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch("https://localhost:7239/api/v1/usuarios/cadastrar", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(usuario),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
-        setMensagemTipo("sucesso");
-        setMensagem("Cadastro realizado com sucesso!");
+      const text = await response.text();
+      const data = text ? JSON.parse(text) : {};
 
-        setTimeout(() => {
-          navigate("/login"); // Redireciona após 2 segundos
-        }, 2000);
-
-        setFormData({
-          nome: "",
-          email: "",
-          cpf: "",
-          senha: "",
-          confirmarSenha: "",
-        });
-        setErros({});
-      } else {
-        const erro = await response.text();
-        setMensagemTipo("erro");
-        setMensagem("Erro ao cadastrar: " + erro);
+      if (!response.ok) {
+        throw new Error(data.message || "Erro ao cadastrar");
       }
+
+      setMensagem("Cadastro realizado com sucesso!");
+      setMensagemTipo("sucesso");
+
+      setTimeout(() => navigate("/login"), 2000);
     } catch (error) {
+      setMensagem(error.message || "Erro inesperado ao cadastrar.");
       setMensagemTipo("erro");
-      setMensagem("Erro de conexão com o servidor.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="cadastros-container">
-      <div className="overlay"></div>
-      <div className="form-wrapper">
-        <div className="cadastro-form-card">
-          <h2>Cadastro</h2>
-
-          {mensagem && (
-            <div className={`cadastro-mensagem ${mensagemTipo === "sucesso" ? "mensagem-sucesso" : "mensagem-erro"}`}>
-              {mensagem}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <label>
-              Nome completo<span className="asterisco">*</span>
-            </label>
-            <input
-              type="text"
-              name="nome"
-              placeholder="Nome completo"
-              value={formData.nome}
-              onChange={handleChange}
-            />
-            {erros.nome && <span className="erro">{erros.nome}</span>}
-
-            <label>
-              E-mail<span className="asterisco">*</span>
-            </label>
-            <input
-              type="email"
-              name="email"
-              placeholder="E-mail"
-              value={formData.email}
-              onChange={handleChange}
-            />
-            {erros.email && <span className="erro">{erros.email}</span>}
-
-            <label>
-              CPF<span className="asterisco">*</span>
-            </label>
-            <input
-              type="text"
-              name="cpf"
-              placeholder="CPF"
-              value={formData.cpf}
-              onChange={handleChange}
-            />
-            {erros.cpf && <span className="erro">{erros.cpf}</span>}
-
-            <label>
-              Senha<span className="asterisco">*</span>
-            </label>
-            <div className="input-wrapper">
-              <input
-                type={mostrarSenha ? "text" : "password"}
-                name="senha"
-                placeholder="Senha"
-                value={formData.senha}
-                onChange={handleChange}
-              />
-              <button type="button" className="olho" onClick={() => setMostrarSenha(!mostrarSenha)}>
-                {mostrarSenha ? <FaEyeSlash /> : <FaEye />}
-              </button>
-            </div>
-            {erros.senha && <span className="erro">{erros.senha}</span>}
-
-            <label>
-              Confirmar senha<span className="asterisco">*</span>
-            </label>
-            <div className="input-wrapper">
-              <input
-                type={mostrarConfirmarSenha ? "text" : "password"}
-                name="confirmarSenha"
-                placeholder="Confirmar senha"
-                value={formData.confirmarSenha}
-                onChange={handleChange}
-              />
-              <button type="button" className="olho" onClick={() => setMostrarConfirmarSenha(!mostrarConfirmarSenha)}>
-                {mostrarConfirmarSenha ? <FaEyeSlash /> : <FaEye />}
-              </button>
-            </div>
-            {erros.confirmarSenha && <span className="erro">{erros.confirmarSenha}</span>}
-
-            <button type="submit">Cadastrar</button>
-          </form>
-
-          <p className="login-link">
-            Já possuo cadastro? <Link to="/login">Entrar</Link>
-          </p>
+    <div className="login-container">
+      <aside className="image-side">
+        <div className="overlay-gradient" />
+        <div className="text-content">
+          <h1>Crie sua conta</h1>
+          <p>Cadastre-se para acessar todas as funcionalidades exclusivas da plataforma.</p>
         </div>
-      </div>
+      </aside>
+
+      <main className="form-side" aria-label="Formulário de cadastro">
+      
+        {mensagem && (
+          <div className={`mensagem ${mensagemTipo}`} role="alert" aria-live="assertive">
+            {mensagem}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} noValidate>
+          <label htmlFor="nome" className="visually-hidden">Nome completo</label>
+          <input
+            type="text"
+            id="nome"
+            name="nome"
+            placeholder="Nome completo"
+            value={formData.nome}
+            onChange={handleChange}
+            required
+            disabled={loading}
+          />
+          {erros.nome && <span className="erro">{erros.nome}</span>}
+
+          <label htmlFor="email" className="visually-hidden">E-mail</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="E-mail"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            disabled={loading}
+          />
+          {erros.email && <span className="erro">{erros.email}</span>}
+
+          <label htmlFor="cpf" className="visually-hidden">CPF</label>
+          <input
+            type="text"
+            id="cpf"
+            name="cpf"
+            placeholder="CPF"
+            value={formData.cpf}
+            onChange={handleChange}
+            required
+            disabled={loading}
+          />
+          {erros.cpf && <span className="erro">{erros.cpf}</span>}
+
+          <label htmlFor="senha" className="visually-hidden">Senha</label>
+          <div className="password-wrapper">
+            <input
+              type={mostrarSenha ? "text" : "password"}
+              id="senha"
+              name="senha"
+              placeholder="Senha"
+              value={formData.senha}
+              onChange={handleChange}
+              required
+              disabled={loading}
+            />
+            <button
+              type="button"
+              onClick={() => setMostrarSenha(!mostrarSenha)}
+              aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+              className="toggle-password-btn"
+              disabled={loading}
+            >
+              {mostrarSenha ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
+          {erros.senha && <span className="erro">{erros.senha}</span>}
+
+          <label htmlFor="confirmarSenha" className="visually-hidden">Confirmar senha</label>
+          <div className="password-wrapper">
+            <input
+              type={mostrarConfirmarSenha ? "text" : "password"}
+              id="confirmarSenha"
+              name="confirmarSenha"
+              placeholder="Confirmar senha"
+              value={formData.confirmarSenha}
+              onChange={handleChange}
+              required
+              disabled={loading}
+            />
+            <button
+              type="button"
+              onClick={() => setMostrarConfirmarSenha(!mostrarConfirmarSenha)}
+              aria-label={mostrarConfirmarSenha ? "Ocultar senha" : "Mostrar senha"}
+              className="toggle-password-btn"
+              disabled={loading}
+            >
+              {mostrarConfirmarSenha ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
+          {erros.confirmarSenha && <span className="erro">{erros.confirmarSenha}</span>}
+
+          <button type="submit" disabled={loading} className="submit-btn">
+            {loading ? "Carregando..." : "Cadastrar"}
+          </button>
+        </form>
+
+        <p className="signup-link">
+          Já tem conta? <Link to="/login">Entrar</Link>
+        </p>
+      </main>
     </div>
   );
 }

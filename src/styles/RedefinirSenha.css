@@ -76,7 +76,7 @@
   background-color: rgba(255, 0, 0, 0.1);
 }
 
-/* Restante do CSS permanece igual */
+/* Mensagens */
 .mensagem {
   padding: 12px;
   border-radius: 8px;
@@ -99,6 +99,7 @@
   border: 1px solid #ff6b6b;
 }
 
+/* Form groups */
 .form-group {
   margin-bottom: 20px;
   position: relative;
@@ -112,6 +113,7 @@
   font-weight: 500;
 }
 
+/* Inputs */
 .redefinir-card input {
   width: 100%;
   padding: 14px 16px;
@@ -136,6 +138,7 @@
   box-shadow: 0 0 8px rgba(255, 0, 0, 0.5);
 }
 
+/* Botão primário */
 .btn-primario {
   width: 100%;
   padding: 14px;
@@ -165,6 +168,7 @@
   opacity: 0.7;
 }
 
+/* Botão link */
 .btn-link {
   background: none;
   border: none;
@@ -187,6 +191,7 @@
   background-color: rgba(255, 0, 0, 0.1);
 }
 
+/* Small text */
 .redefinir-card small {
   display: block;
   margin-top: 6px;
@@ -195,6 +200,7 @@
   font-style: italic;
 }
 
+/* Redirecionando animation */
 .redirecionando {
   animation: pulse 1s infinite;
 }
@@ -205,6 +211,7 @@
   100% { opacity: 1; }
 }
 
+/* Responsivo */
 @media (max-width: 576px) {
   .redefinir-card {
     padding: 30px;
@@ -219,3 +226,53 @@
     font-size: 15px;
   }
 }
+
+/* Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #121212;
+  color: #eaeaea;
+}
+/* Container principal do formulário */
+.form-side {
+  position: relative; /* ESSENCIAL para o botão absoluto */
+  background-color: #121212; /* Exemplo, ajuste conforme seu design */
+  padding: 40px 30px;
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+/* Botão Voltar posicionado no topo esquerdo */
+.btn-voltar {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 8px 14px;
+  font-size: 1rem;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  z-index: 10;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.btn-voltar:hover,
+.btn-voltar:focus {
+  color: #00aaff; /* cor ao passar mouse ou foco, ajuste */
+  outline: none;
+}
+
+/* Outros estilos já existentes para seu formulário */

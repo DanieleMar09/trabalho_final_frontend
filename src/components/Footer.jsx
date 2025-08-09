@@ -15,7 +15,7 @@ const Footer = () => {
           <h4>Contato</h4>
           <p><FaMapMarkerAlt /> Treze de Maio - Sabará, MG</p>
           <p><FaPhoneAlt /> (31) 9 8734-0716</p>
-          <p><FaEnvelope /> contato@danithurveiculos.com.br</p>
+          <p><FaEnvelope /> contato@Dani&Thurveiculos.com.br</p>
         </div>
 
         <div className="footer-section">

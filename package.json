@@ -10,10 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "axios": "^1.10.0",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.17.3",
+    "jspdf": "^3.0.1",
     "lucide-react": "^0.511.0",
+    "pix-utils": "^2.8.1",
     "prop-types": "^15.8.1",
     "qrcode.react": "^4.2.0",
     "react": "^19.0.0",

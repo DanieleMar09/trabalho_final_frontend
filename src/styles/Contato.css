@@ -1,91 +1,219 @@
+/* Reset básico */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #121212;
+  color: #eaeaea;
+}
+
+/* Container principal flexível */
 .contact-container {
-  max-width: 600px;
-  margin: 8rem auto 0;
-  padding: 2.5rem;
-  background-color: #000;
-  border: 1px solid #ff0000;
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  justify-content: center;
+  align-items: stretch;
+  background: #121212;
+}
+
+/* Lado da imagem com gradiente e texto */
+.image-side {
+  flex: 1.2;
   position: relative;
-}
-
-.contact-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: #ff0000;
-}
-
-.contact-container h2 {
-  color: #fff;
-  text-align: center;
-  font-size: 2.2rem;
-  margin-bottom: 2.5rem;
-  font-weight: 400;
-  letter-spacing: 1px;
-}
-
-.contact-form {
+  background-image: url('../src/assets/images/fundo.png'); /* coloque sua imagem aqui */
+  background-size: cover;
+  background-position: center;
   display: flex;
   flex-direction: column;
-  gap: 1.8rem;
-}
-
-.contact-form input,
-.contact-form textarea {
-  padding: 1rem;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid #333;
+  justify-content: center;
+  padding: 60px 40px;
   color: #fff;
-  font-size: 1rem;
-  transition: all 0.3s ease;
+  font-weight: 400;
+  overflow: hidden;
 }
 
-.contact-form input:focus,
-.contact-form textarea:focus {
-  outline: none;
-  border-bottom-color: #ff0000;
+.overlay-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 0, 0, 0.85), rgba(50, 0, 0, 0.6));
+  z-index: 1;
+  pointer-events: none;
 }
 
-.contact-form textarea {
-  min-height: 120px;
-  resize: vertical;
+.text-content {
+  position: relative;
+  z-index: 2;
+  max-width: 380px;
+  user-select: none;
+  animation: fadeInUp 0.8s ease forwards;
 }
 
-.contact-form button {
-  padding: 1rem;
-  background: #ff0000;
-  color: white;
-  border: none;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 1rem;
+.text-content h1 {
+  font-size: 3.5rem;
+  margin: 0 0 20px 0;
+  font-weight: 900;
+  letter-spacing: 1.4px;
+  line-height: 1.1;
 }
 
-.contact-form button:hover {
-  background: #cc0000;
+.text-content p {
+  font-size: 1.2rem;
+  line-height: 1.5;
+  opacity: 0.9;
 }
 
-.success-message {
+/* Formulário lado direito */
+.form-side {
+  flex: 1;
+  background: #1e1e1e;
+  padding: 60px 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: -10px 0 30px rgba(230, 57, 70, 0.25);
+  border-radius: 0 12px 12px 0;
+  animation: fadeIn 1s ease forwards;
+}
+
+/* Mensagem sucesso */
+.mensagem {
+  padding: 14px;
+  border-radius: 8px;
+  margin-bottom: 25px;
   text-align: center;
-  padding: 2rem;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.03em;
+  user-select: none;
+  transition: all 0.3s ease;
 }
 
-.success-message p {
-  color: #fff;
-  font-size: 1.1rem;
+.mensagem.sucesso {
+  background-color: #264653;
+  color: #82c91e;
+  border: 1px solid #82c91e;
+  box-shadow: 0 0 15px #82c91e66;
 }
 
-@media (max-width: 768px) {
-  .contact-container {
-    margin: 5rem 1.5rem 0;
-    padding: 2rem 1.5rem;
+/* Inputs e textarea */
+input[type="text"],
+input[type="email"],
+textarea {
+  width: 100%;
+  padding: 15px 18px;
+  border-radius: 10px;
+  border: 2px solid #444;
+  background-color: #121212;
+  color: #eaeaea;
+  font-size: 16px;
+  font-weight: 500;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  outline-offset: 2px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+textarea:focus {
+  border-color: #e63946;
+  box-shadow: 0 0 12px #e6394666;
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 140px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Botão submit */
+.submit-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #e63946, #d62828);
+  color: white;
+  font-weight: 700;
+  font-size: 18px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  box-shadow: 0 8px 20px rgba(214, 40, 40, 0.5);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #d62828, #b22222);
+  box-shadow: 0 10px 28px rgba(178, 34, 34, 0.8);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Ajuste para campos desabilitados */
+input:disabled,
+textarea:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background-color: #1a1a1a;
+}
+
+/* Animações */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(35px);
   }
-  
-  .contact-container h2 {
-    font-size: 1.8rem;
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Responsividade */
+@media (max-width: 900px) {
+  .contact-container {
+    flex-direction: column;
+  }
+
+  .image-side {
+    flex: none;
+    height: 300px;
+    border-radius: 0 0 12px 12px;
+    padding: 30px 20px;
+  }
+
+  .form-side {
+    flex: none;
+    padding: 40px 30px;
+    border-radius: 12px 12px 0 0;
+    box-shadow: none;
+  }
+
+  .text-content h1 {
+    font-size: 2.5rem;
+  }
+
+  .text-content p {
+    font-size: 1rem;
   }
 }

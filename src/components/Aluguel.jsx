@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import "../styles/Aluguel.css";
+
 
 const AluguelSeminovosPage = () => {
   const [alugueis, setAlugueis] = useState([]);
@@ -14,6 +14,7 @@ const AluguelSeminovosPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [filtro, setFiltro] = useState('todos');
   const [erro, setErro] = useState(null);
+  const [userId, setUserId] = useState(null);
 
   const [formData, setFormData] = useState({
     dataInicio: '',
@@ -23,12 +24,23 @@ const AluguelSeminovosPage = () => {
     carroId: ''
   });
 
+  // Verifica se o usuário está logado usando a mesma chave do login
+  const isUserLoggedIn = () => {
+    return Boolean(localStorage.getItem('authToken')); // Alterado para 'authToken'
+  };
+
   useEffect(() => {
+    // Carrega ID do usuário do localStorage usando a mesma chave do login
+    const storedUserId = localStorage.getItem('idUsuario'); // Alterado para 'idUsuario'
+    if (storedUserId) {
+      setUserId(parseInt(storedUserId));
+    }
+
     const fetchData = async () => {
       try {
         const [alugueisRes, carrosRes] = await Promise.all([
-          axios.get('https://localhost:7239/api/Alugueis'),
-          axios.get('https://localhost:7239/api/v1/usados/listar/disponiveis')
+          axios.get('https://localhost:7239/api/Aluguel'),
+          axios.get('https://localhost:7239/api/v1/usados/listar')
         ]);
         
         setAlugueis(alugueisRes.data);
@@ -56,7 +68,7 @@ const AluguelSeminovosPage = () => {
     setFormData(prev => ({
       ...prev,
       carroId,
-      valorTotal: carroSelecionado ? carroSelecionado.valorDiaria * 7 : '' // Valor padrão para 1 semana
+      valorTotal: carroSelecionado ? carroSelecionado.valorDiaria * 7 : ''
     }));
   };
 
@@ -66,12 +78,17 @@ const AluguelSeminovosPage = () => {
     setErro(null);
     
     try {
-      const usuarioId = 1; // Em uma aplicação real, isso viria do contexto de autenticação
+      // Verifica se o usuário está logado e tem ID válido
+      if (!userId) {
+        setErro('Usuário não identificado. Faça login novamente.');
+        return;
+      }
+
       const payload = {
         ...formData,
         valorTotal: parseFloat(formData.valorTotal),
         carroId: parseInt(formData.carroId),
-        usuarioId,
+        usuarioId: userId, // Usa o ID real do usuário
         status: 'Pendente'
       };
 
@@ -103,9 +120,11 @@ const AluguelSeminovosPage = () => {
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   };
 
-  const alugueisFiltrados = filtro === 'todos' 
+  // Filtra aluguéis apenas do usuário logado
+  const alugueisFiltrados = (filtro === 'todos' 
     ? alugueis 
-    : alugueis.filter(a => a.status === filtro);
+    : alugueis.filter(a => a.status === filtro)
+  ).filter(a => a.usuarioId === userId);
 
   return (
     <div className="aluguel-container">
@@ -137,6 +156,13 @@ const AluguelSeminovosPage = () => {
                   <p>Diária: <strong>R$ {carro.valorDiaria?.toFixed(2)}</strong></p>
                   <button 
                     onClick={() => {
+                      if (!isUserLoggedIn()) {
+                        alert('Você precisa estar logado para alugar um veículo. Você será redirecionado para a página de login.');
+                        // Armazena a rota atual para redirecionamento pós-login
+                        localStorage.setItem('redirectPath', window.location.pathname);
+                        window.location.href = '/login';
+                        return;
+                      }
                       setShowForm(true);
                       setFormData(prev => ({
                         ...prev,
@@ -272,25 +298,25 @@ const AluguelSeminovosPage = () => {
           <h2>Histórico de Aluguéis</h2>
           <div className="filtros">
             <button 
-              className={filtro === 'todos' ? 'active' : ''}
+              className={filtro === 'todos' ? 'active' : ''} 
               onClick={() => setFiltro('todos')}
             >
               Todos
             </button>
             <button 
-              className={filtro === 'Pendente' ? 'active' : ''}
+              className={filtro === 'Pendente' ? 'active' : ''} 
               onClick={() => setFiltro('Pendente')}
             >
               Pendentes
             </button>
             <button 
-              className={filtro === 'Confirmado' ? 'active' : ''}
+              className={filtro === 'Confirmado' ? 'active' : ''} 
               onClick={() => setFiltro('Confirmado')}
             >
               Confirmados
             </button>
             <button 
-              className={filtro === 'Cancelado' ? 'active' : ''}
+              className={filtro === 'Cancelado' ? 'active' : ''} 
               onClick={() => setFiltro('Cancelado')}
             >
               Cancelados

@@ -4,7 +4,7 @@
   background-color: #121212;
   margin-top: 35px;
   min-height: 100vh;
-  text-align: center; /* Centraliza o título */
+  text-align: center;
   align-items: center;
 }
 
@@ -15,7 +15,6 @@
   border-bottom: 2px solid #e50914;
   display: inline-block;
   padding-bottom: 5px;
-  /* Remove width para ficar só na largura do texto */
 }
 
 /* Filtros */
@@ -39,7 +38,7 @@
   color: #fff;
   outline: none;
   transition: border-color 0.3s, transform 0.3s;
-  max-width: 250px; /* limita largura */
+  max-width: 250px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -90,11 +89,13 @@
   text-align: left;
   color: #dcdcdc;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  position: relative;
 }
 
 .carro-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+  box-shadow: 0 0 20px 6px rgba(255, 0, 0, 0.5); /* Efeito de brilho vermelho */
 }
 
 .carro-card img {
@@ -103,6 +104,11 @@
   object-fit: cover;
   border-radius: 8px;
   margin-bottom: 15px;
+  transition: transform 0.5s ease;
+}
+
+.carro-card:hover img {
+  transform: scale(1.05); /* Zoom da imagem */
 }
 
 .carro-card h3 {

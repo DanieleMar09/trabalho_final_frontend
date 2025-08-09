@@ -8,15 +8,17 @@
   --white: #FFFFFF;
   --accent: #D32F2F;
   --accent-hover: #B71C1C;
+  --border-radius: 12px;
+  --transition-speed: 0.25s;
 }
 
 body {
   background-color: var(--black);
   color: var(--white);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Inter', sans-serif;
   margin: 0;
   padding: 0;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .detalhes-container {
@@ -24,11 +26,12 @@ body {
   margin: 2rem auto;
   padding: 2.5rem;
   background-color: var(--dark-gray);
-  border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-wrap: wrap;
-  gap: 2rem;
+  gap: 2.5rem;
+   margin-top:100px
 }
 
 .detalhes-texto {
@@ -38,87 +41,82 @@ body {
   justify-content: center;
 }
 
-.detalhes-container h1 {
-  font-size: 2.5rem;
-  font-weight: 600;
+.detalhes-texto h1 {
+  font-size: 2.75rem;
+  font-weight: 700;
   margin-bottom: 1rem;
   color: var(--white);
 }
 
-.detalhes-container p {
+.detalhes-texto p {
   font-size: 1.1rem;
   color: var(--light-gray);
   margin: 0.5rem 0;
-  font-weight: 400;
 }
 
 .preco {
-  font-size: 1.8rem;
+  font-size: 2rem;
   font-weight: 600;
   color: var(--accent);
   margin: 1.5rem 0;
 }
 
 .selecao-cor {
-  margin: 1.5rem 0;
+  margin: 2rem 0;
 }
 
 .selecao-cor h3 {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 500;
   margin-bottom: 1rem;
+  color: var(--white);
 }
 
 .color-options {
   display: flex;
-  gap: 0.8rem;
+  gap: 1rem;
   flex-wrap: wrap;
 }
 
 .botao-cor {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   cursor: pointer;
   border: 2px solid transparent;
-  transition: all 0.2s ease;
+  transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+  outline: none;
 }
 
-.botao-cor:hover {
-  transform: scale(1.1);
+.botao-cor:hover,
+.botao-cor:focus-visible {
+  transform: scale(1.12);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
 }
 
 .botao-cor.ativo {
   border-color: var(--white);
-  box-shadow: 0 0 0 3px var(--accent);
+  box-shadow: 0 0 0 4px var(--accent);
 }
-
-/* Cores específicas */
-.botao-cor[style*="preto"] { background-color: #1A1A1A; }
-.botao-cor[style*="prata"] { background-color: #C4C4C4; }
-.botao-cor[style*="azul"] { background-color: #1976D2; }
-.botao-cor[style*="verde"] { background-color: #388E3C; }
-.botao-cor[style*="vermelho"] { background-color: #D32F2F; }
-.botao-cor[style*="amarelo"] { background-color: #FBC02D; }
 
 .imagem-carro {
   flex: 1 1 500px;
-  text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
 }
 
 .imagem-carro img {
   max-width: 100%;
-  max-height: 450px;
+  max-height: 480px;
   object-fit: contain;
-  border-radius: 10px;
-  transition: transform 0.3s ease;
+  border-radius: var(--border-radius);
+  transition: transform var(--transition-speed);
 }
 
 .imagem-carro img:hover {
-  transform: scale(1.02);
+  transform: scale(1.03);
 }
 
 .btn-carrinho {
@@ -128,35 +126,38 @@ body {
   padding: 1rem 2rem;
   font-size: 1rem;
   font-weight: 500;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color var(--transition-speed), transform var(--transition-speed);
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  margin-top: 1.5rem;
 }
 
-.btn-carrinho:hover {
+.btn-carrinho:hover,
+.btn-carrinho:focus-visible {
   background-color: var(--accent-hover);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
+/* Responsividade */
 @media (max-width: 900px) {
   .detalhes-container {
     flex-direction: column;
     padding: 1.5rem;
   }
 
-  .detalhes-texto,
-  .imagem-carro {
-    flex: 1 1 100%;
-  }
-
   .imagem-carro img {
-    max-height: 300px;
+    max-height: 320px;
   }
 
-  .detalhes-container h1 {
+  .detalhes-texto h1 {
     font-size: 2rem;
+  }
+
+  .preco {
+    font-size: 1.5rem;
   }
 }

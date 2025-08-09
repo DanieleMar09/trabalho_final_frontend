@@ -1,194 +1,318 @@
-/* Container com imagem de fundo e overlay escuro */
-.cadastros-container {
-  position: relative;
-  min-height: 100vh;
+/* Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #121212;
+  color: #eaeaea;
+}
+
+/* Container principal */
+.login-container {
   display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
   justify-content: center;
-  align-items: center;
-  background-image: url('../src/assets/images/fundo.png'); /* Altere conforme o caminho correto */
+  align-items: stretch;
+  background: #121212;
+}
+
+/* Lado esquerdo com imagem */
+.image-side {
+  flex: 1.2;
+  position: relative;
+  background-image: url('../src/assets/images/fundo.png');
   background-size: cover;
   background-position: center;
-  padding: 20px;
-  box-sizing: border-box;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  z-index: 1;
-  margin-top: 74px; /* Adicione esta linha ou ajuste o valor conforme necessário */
-  background-attachment: fixed;
-
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 40px;
+  color: #fff;
+  font-weight: 400;
+  overflow: hidden;
 }
 
-/* Overlay escuro */
-.overlay {
-  content: "";
+.overlay-gradient {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-   background: rgba(0, 0, 0, 0.75);
-  z-index: 0;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 0, 0, 0.85), rgba(50, 0, 0, 0.6));
+  z-index: 1;
+  pointer-events: none;
 }
 
-/* Wrapper para centralizar e aplicar z-index correto */
-.form-wrapper {
+.text-content {
   position: relative;
   z-index: 2;
-  width: 100%;
-  max-width: 450px;
+  max-width: 380px;
+  user-select: none;
+  animation: fadeInUp 0.8s ease forwards;
 }
 
-/* Cartão do formulário */
-.cadastro-form-card {
-  background-color: #1e1e1e;
-  padding: 40px 45px;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(255, 0, 0, 0.2);
-  border: 1.5px solid red;
-  transition: transform 0.3s ease;
-  color: #eee;
+.text-content h1 {
+  font-size: 3.5rem;
+  margin: 0 0 20px 0;
+  font-weight: 900;
+  letter-spacing: 1.4px;
+  line-height: 1.1;
 }
 
-.cadastro-form-card:hover {
-  transform: translateY(-6px);
+.text-content p {
+  font-size: 1.2rem;
+  line-height: 1.5;
+  opacity: 0.9;
 }
 
-.cadastro-form-card h2 {
-  text-align: center;
-  color: red;
+/* Formulário (lado direito) */
+.form-side {
+  flex: 1;
+  background: #1e1e1e;
+  padding: 60px 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: -10px 0 30px rgba(230, 57, 70, 0.25);
+  border-radius: 0 12px 12px 0;
+  animation: fadeIn 1s ease forwards;
+}
+
+.form-side h2 {
+  font-size: 2.5rem;
   font-weight: 700;
-  font-size: 28px;
-  margin-bottom: 25px;
+  color: #e63946;
+  margin-bottom: 32px;
+  text-align: center;
+  letter-spacing: 1.1px;
 }
 
-/* Mensagem de sucesso/erro */
-.cadastro-mensagem {
-  padding: 12px;
+/* Mensagens */
+.mensagem {
+  padding: 14px;
   border-radius: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
   text-align: center;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
   letter-spacing: 0.03em;
+  user-select: none;
+  transition: all 0.3s ease;
 }
 
-.mensagem-sucesso {
-  background-color: #2a2f2a;
+.mensagem.sucesso {
+  background-color: #264653;
   color: #82c91e;
   border: 1px solid #82c91e;
+  box-shadow: 0 0 15px #82c91e66;
 }
 
-.mensagem-erro {
-  background-color: #3a1a1a;
+.mensagem.erro {
+  background-color: #6a1b1b;
   color: #ff6b6b;
   border: 1px solid #ff6b6b;
+  box-shadow: 0 0 15px #ff6b6b66;
 }
 
-/* Campos do formulário */
-form label {
-  display: block;
-  margin-bottom: 6px;
-  margin-top: 16px;
-  color: #eee;
-  font-size: 15px;
-  font-weight: 500;
-}
-
-.asterisco {
-  color: red;
-  margin-left: 4px;
-}
-
-input[type="text"],
+/* Inputs */
 input[type="email"],
-input[type="password"] {
+input[type="password"],
+input[type="text"] {
   width: 100%;
-  padding: 14px 16px;
-  border: 1.5px solid #444;
-  border-radius: 8px;
+  padding: 15px 48px 15px 18px;
+  border-radius: 10px;
+  border: 2px solid #444;
   background-color: #121212;
-  color: #eee;
+  color: #eaeaea;
   font-size: 16px;
-  box-sizing: border-box;
-  transition: border-color 0.3s ease, background-color 0.3s ease;
-}
-
-input::placeholder {
-  color: #888;
-  font-style: italic;
+  font-weight: 500;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  outline-offset: 2px;
+  margin-bottom: 10px;
 }
 
 input:focus {
-  border-color: red;
-  background-color: #1e1e1e;
+  border-color: #e63946;
+  box-shadow: 0 0 12px #e6394666;
   outline: none;
-  box-shadow: 0 0 8px red;
 }
 
-/* Wrapper de campo com botão do olho */
-.input-wrapper {
+/* Wrapper do campo de senha */
+.password-wrapper {
   position: relative;
+  margin-bottom: 22px;
 }
 
-.olho {
+.toggle-password-btn {
   position: absolute;
   top: 50%;
-  right: 14px;
+  right: 16px;
   transform: translateY(-50%);
   background: transparent;
   border: none;
   color: #ccc;
-  font-size: 18px;
+  font-size: 20px;
   cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
 }
 
-/* Mensagens de erro de campo */
-.erro {
-  display: block;
-  margin-top: 6px;
-  font-size: 13px;
-  color: #ff6b6b;
+.toggle-password-btn:hover {
+  color: #e63946;
 }
 
-/* Botão de cadastro */
-button[type="submit"] {
+.toggle-password-btn:focus {
+  outline: 2px solid #e63946;
+  outline-offset: 2px;
+}
+
+/* Link "esqueci minha senha" */
+.forgot-password-link {
+  text-align: right;
+  margin-bottom: 28px;
+}
+
+.forgot-password-link a {
+  color: #e63946;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.forgot-password-link a:hover,
+.forgot-password-link a:focus {
+  color: #f76c6c;
+  text-decoration: underline;
+  outline: none;
+}
+
+/* Botão submit */
+.submit-btn {
   width: 100%;
-  padding: 14px;
-  background-color: red;
-  color: #fff;
+  padding: 16px;
+  background: linear-gradient(135deg, #e63946, #d62828);
+  color: white;
   font-weight: 700;
+  font-size: 18px;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
-  font-size: 17px;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  margin-top: 25px;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 12px rgba(230, 57, 70, 0.4);
+  box-shadow: 0 8px 20px rgba(214, 40, 40, 0.5);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
-button[type="submit"]:hover {
-  background-color: #b8323a;
-  box-shadow: 0 6px 16px rgba(184, 50, 58, 0.7);
+.submit-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #d62828, #b22222);
+  box-shadow: 0 10px 28px rgba(178, 34, 34, 0.8);
 }
 
-/* Link para login */
-.login-link {
-  margin-top: 20px;
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Link de redirecionamento */
+.signup-link {
+  margin-top: 28px;
   text-align: center;
   font-size: 14px;
-  color: #ccc;
+  color: #bbb;
 }
 
-.login-link a {
-  color: red;
+.signup-link a {
+  color: #e63946;
   font-weight: 600;
   text-decoration: none;
-  margin-left: 4px;
-  transition: color 0.3s ease, text-shadow 0.3s ease;
+  transition: color 0.3s ease;
 }
 
-.login-link a:hover {
-  color: #ff4d4d;
-  text-shadow: 0 0 6px rgba(255, 77, 77, 0.6);
+.signup-link a:hover,
+.signup-link a:focus {
+  color: #f76c6c;
+  text-decoration: underline;
+  outline: none;
+}
+
+/* Esconde visualmente (acessibilidade) */
+.visually-hidden {
+  border: 0 !important;
+  clip: rect(1px, 1px, 1px, 1px) !important;
+  -webkit-clip-path: inset(50%) !important;
+          clip-path: inset(50%) !important;
+  height: 1px !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  position: absolute !important;
+  width: 1px !important;
+  white-space: nowrap !important;
+}
+
+/* Mensagens de erro abaixo de inputs */
+.erro {
+  font-size: 13px;
+  color: #ff6b6b;
+  margin-top: -8px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+/* Animações */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(35px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Responsivo */
+@media (max-width: 900px) {
+  .login-container {
+    flex-direction: column;
+  }
+
+  .image-side {
+    flex: none;
+    height: 300px;
+    border-radius: 0 0 12px 12px;
+    padding: 30px 20px;
+  }
+
+  .form-side {
+    flex: none;
+    padding: 40px 30px;
+    border-radius: 12px 12px 0 0;
+    box-shadow: none;
+  }
+
+  .text-content h1 {
+    font-size: 2.5rem;
+  }
+
+  .text-content p {
+    font-size: 1rem;
+  }
 }

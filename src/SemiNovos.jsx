@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./styles/SemiNovos.css";
-import { format } from 'date-fns';
+import { format, differenceInDays } from 'date-fns';
 
 const CarrosSeminovos = () => {
-  // Configuração da API
   const API_BASE_URL = "https://localhost:7239/api/v1";
   
-  // Estados da aplicação
   const [carros, setCarros] = useState([]);
   const [search, setSearch] = useState("");
-  const [filtroPreco, setFiltroPreco] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showAluguelModal, setShowAluguelModal] = useState(false);
@@ -24,7 +21,6 @@ const CarrosSeminovos = () => {
   const [loadingAluguel, setLoadingAluguel] = useState(false);
   const [aluguelSucesso, setAluguelSucesso] = useState(false);
 
-  // Buscar carros seminovos
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -38,13 +34,11 @@ const CarrosSeminovos = () => {
         }
       });
 
-      // Normalizar dados da API, garantindo id único (fallback com index)
       const carrosNormalizados = response.data.map((carro, index) => ({
         id: carro.id || carro.Id || `temp-id-${index}`,
         marca: carro.marca || carro.Marca,
         modelo: carro.modelo || carro.Modelo,
         ano: carro.ano || carro.Ano,
-        preco: carro.preco || carro.Preco,
         quilometragem: carro.quilometragem || carro.Quilometragem,
         cor: carro.cor || carro.Cor,
         imagemUrl: carro.imagemUrl || carro.Imagem,
@@ -53,11 +47,8 @@ const CarrosSeminovos = () => {
 
       setCarros(carrosNormalizados);
     } catch (error) {
-      console.error("Erro ao buscar carros:", {
-        url: `${API_BASE_URL}/usados/listar`,
-        error: error.response?.data || error.message
-      });
-      setError("Erro ao carregar veículos. Verifique sua conexão e tente novamente.");
+      console.error("Erro ao buscar carros:", error);
+      setError("Erro ao carregar veículos. Tente novamente mais tarde.");
     } finally {
       setLoading(false);
     }
@@ -67,22 +58,21 @@ const CarrosSeminovos = () => {
     fetchData();
   }, []);
 
-  // Filtrar carros
   const carrosFiltrados = carros.filter(carro => {
     const busca = search.toLowerCase();
-    return (
-      `${carro.marca} ${carro.modelo}`.toLowerCase().includes(busca) &&
-      (filtroPreco === "" || carro.preco <= parseInt(filtroPreco))
-    );
+    return `${carro.marca} ${carro.modelo}`.toLowerCase().includes(busca);
   });
 
-  // Abrir modal de aluguel
   const abrirModalAluguel = (carro) => {
     setCarroSelecionado(carro);
+    const dataInicio = new Date();
+    const dataFim = new Date();
+    dataFim.setDate(dataFim.getDate() + 3);
+    
     setFormData({
-      dataInicio: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-      dataFim: '',
-      valorTotal: carro.valorDiaria.toFixed(2),
+      dataInicio: format(dataInicio, "yyyy-MM-dd'T'HH:mm"),
+      dataFim: format(dataFim, "yyyy-MM-dd'T'HH:mm"),
+      valorTotal: (carro.valorDiaria * 3).toFixed(2),
       observacoes: ''
     });
     setShowAluguelModal(true);
@@ -90,79 +80,113 @@ const CarrosSeminovos = () => {
     setError(null);
   };
 
-  // Manipular mudanças no formulário
+  const calcularValorAluguel = () => {
+    if (!formData.dataInicio || !formData.dataFim || !carroSelecionado) return;
+    
+    try {
+      const inicio = new Date(formData.dataInicio);
+      const fim = new Date(formData.dataFim);
+      
+      if (fim <= inicio) {
+        return { dias: 0, total: 0 };
+      }
+      
+      const dias = differenceInDays(fim, inicio) || 1;
+      const total = dias * carroSelecionado.valorDiaria;
+      
+      return { dias, total };
+    } catch (error) {
+      console.error("Erro no cálculo:", error);
+      return { dias: 0, total: 0 };
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-
-    // Calcular valor total automaticamente quando datas são alteradas
-    if ((name === 'dataInicio' || name === 'dataFim')) {
-      if (formData.dataInicio && (name === 'dataFim' ? value : formData.dataFim)) {
-        const dataInicio = name === 'dataInicio' ? value : formData.dataInicio;
-        const dataFim = name === 'dataFim' ? value : formData.dataFim;
-        const diffMs = new Date(dataFim) - new Date(dataInicio);
-        const dias = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-        const valorTotal = dias > 0
-          ? (carroSelecionado.valorDiaria * dias).toFixed(2)
-          : carroSelecionado.valorDiaria.toFixed(2);
-        setFormData(prev => ({ ...prev, valorTotal }));
+    
+    if ((name === 'dataInicio' || name === 'dataFim') && carroSelecionado) {
+      const calculo = calcularValorAluguel();
+      if (calculo) {
+        setFormData(prev => ({
+          ...prev,
+          valorTotal: calculo.total.toFixed(2)
+        }));
       }
     }
   };
 
-  // Submeter formulário de aluguel
   const handleSubmitAluguel = async (e) => {
     e.preventDefault();
     setLoadingAluguel(true);
     setError(null);
 
+    const calculo = calcularValorAluguel();
+    if (!calculo || calculo.dias < 1) {
+      setError("Período de aluguel inválido. A data de término deve ser posterior à data de início.");
+      setLoadingAluguel(false);
+      return;
+    }
+
     try {
-      // Preparar payload
+      // Formatar datas para ISO 8601 (formato esperado pela API)
+      const formatarDataParaISO = (dataString) => {
+        const data = new Date(dataString);
+        const ano = data.getFullYear();
+        const mes = String(data.getMonth() + 1).padStart(2, '0');
+        const dia = String(data.getDate()).padStart(2, '0');
+        const horas = String(data.getHours()).padStart(2, '0');
+        const minutos = String(data.getMinutes()).padStart(2, '0');
+        return `${ano}-${mes}-${dia}T${horas}:${minutos}:00`;
+      };
+
       const payload = {
         carroId: carroSelecionado.id,
-        cor: carroSelecionado.cor || "Indefinida"  ,// <-- aqui
-        dataInicio: new Date(formData.dataInicio).toISOString(),
-        dataFim: new Date(formData.dataFim).toISOString(),
+        cor: carroSelecionado.cor || "Indefinida",
+        dataInicio: formatarDataParaISO(formData.dataInicio),
+        dataFim: formatarDataParaISO(formData.dataFim),
         valorTotal: parseFloat(formData.valorTotal),
         observacoes: formData.observacoes,
         status: "Pendente",
-        usuarioId: 1 // Substituir pelo ID do usuário logado
-        
+        usuarioId: 1
       };
 
-      console.log("Enviando aluguel:", payload); // Log para depuração
+      console.log("Enviando payload para aluguel:", payload);
+      console.log("Endpoint: ", `${API_BASE_URL}/Aluguel/cadastrar`);
 
-      // Enviar para a API
       const response = await axios.post(
-        `${API_BASE_URL}/Aluguel/cadastrar`,
+        `${API_BASE_URL}/Aluguel/cadastrar`, // URL corrigida
         payload,
         {
           headers: { 
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
           },
-          timeout: 5000
+          timeout: 10000
         }
       );
 
+      console.log("Aluguel cadastrado com sucesso:", response.data);
+      
       if (response.status === 200 || response.status === 201) {
-        console.log("Aluguel cadastrado com sucesso:", response.data);
         setAluguelSucesso(true);
         setTimeout(() => {
           setShowAluguelModal(false);
-          fetchData(); // Atualizar lista
         }, 2000);
       } else {
         throw new Error(`Resposta inesperada: ${response.status}`);
       }
     } catch (error) {
-      console.error("Erro ao cadastrar aluguel:", {
-        error: error.response?.data || error.message,
-        config: error.config
-      });
-
+      console.error("Erro ao cadastrar aluguel:", error);
+      
       let errorMessage = "Erro ao registrar aluguel";
       if (error.response) {
+        console.error("Detalhes do erro:", {
+          status: error.response.status,
+          data: error.response.data,
+          headers: error.response.headers
+        });
+        
         if (error.response.data) {
           if (typeof error.response.data === 'string') {
             errorMessage = error.response.data;
@@ -176,7 +200,7 @@ const CarrosSeminovos = () => {
         }
         errorMessage += ` (Status: ${error.response.status})`;
       } else if (error.request) {
-        errorMessage = "Sem resposta do servidor. Verifique sua conexão.";
+        errorMessage = "Não foi possível conectar ao servidor. Verifique sua conexão de internet.";
       } else {
         errorMessage = error.message;
       }
@@ -203,36 +227,26 @@ const CarrosSeminovos = () => {
     </div>
   );
 
+  const { dias = 0 } = calcularValorAluguel() || {};
+
   return (
     <div className="seminos-container">
-      <h2 className="seminos-titulo">Carros Semi-Novos Disponíveis</h2>
+      <h2 className="seminos-titulo">Carros Disponíveis para Aluguel</h2>
 
-      {/* Filtros */}
       <div className="seminos-filtros">
         <input
           type="text"
-          placeholder="Pesquisar..."
+          placeholder="Pesquisar veículo..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="seminos-pesquisa-input"
         />
-        <select
-          value={filtroPreco}
-          onChange={(e) => setFiltroPreco(e.target.value)}
-          className="seminos-preco-select"
-        >
-          <option value="">Todos os preços</option>
-          <option value="10000">Até R$10.000</option>
-          <option value="100000">Até R$100.000</option>
-          <option value="150000">Até R$150.000</option>
-        </select>
       </div>
 
-      {/* Lista de carros */}
       <div className="seminos-grid">
         {carrosFiltrados.length > 0 ? (
-          carrosFiltrados.map((carro, index) => (
-            <div className="seminos-card" key={carro.id || `carro-${index}`}>
+          carrosFiltrados.map((carro) => (
+            <div className="seminos-card" key={carro.id}>
               <div className="seminos-card-imagem">
                 {carro.imagemUrl ? (
                   <img src={carro.imagemUrl} alt={`${carro.marca} ${carro.modelo}`} />
@@ -245,14 +259,16 @@ const CarrosSeminovos = () => {
               <div className="seminos-card-info">
                 <h3>{carro.marca} {carro.modelo}</h3>
                 <p><strong>Ano:</strong> {carro.ano}</p>
-                <p><strong>Preço:</strong> R$ {carro.preco.toLocaleString('pt-BR')}</p>
-                <p><strong>Diária:</strong> R$ {carro.valorDiaria.toFixed(2)}</p>
+                <p className="valor-diaria">
+                  <strong>Diária:</strong> R$ {carro.valorDiaria.toFixed(2)}
+                </p>
+                <p className="info-aluguel">Alugue por 3 dias: R$ {(carro.valorDiaria * 3).toFixed(2)}</p>
               </div>
               <button 
                 className="seminos-comprar-btn"
                 onClick={() => abrirModalAluguel(carro)}
               >
-                Alugar
+                Alugar Agora
               </button>
             </div>
           ))
@@ -261,8 +277,7 @@ const CarrosSeminovos = () => {
         )}
       </div>
 
-      {/* Modal de aluguel */}
-      {showAluguelModal && (
+      {showAluguelModal && carroSelecionado && (
         <div className="seminos-modal-overlay">
           <div className="seminos-modal">
             <button 
@@ -274,13 +289,18 @@ const CarrosSeminovos = () => {
 
             {aluguelSucesso ? (
               <div className="seminos-aluguel-sucesso">
-                <h3>Sucesso!</h3>
-                <p>Aluguel registrado com sucesso.</p>
+                <div className="seminos-sucesso-icon">✓</div>
+                <h3>Aluguel Confirmado!</h3>
+                <p>Seu aluguel para {carroSelecionado.marca} {carroSelecionado.modelo} foi registrado com sucesso.</p>
               </div>
             ) : (
               <>
-                <h3>Alugar {carroSelecionado?.marca} {carroSelecionado?.modelo}</h3>
+                <h3>Alugar {carroSelecionado.marca} {carroSelecionado.modelo}</h3>
                 {error && <div className="seminos-modal-error">{error}</div>}
+                
+                <div className="detalhes-aluguel">
+                  <p><strong>Valor da diária:</strong> R$ {carroSelecionado.valorDiaria.toFixed(2)}</p>
+                </div>
                 
                 <form onSubmit={handleSubmitAluguel}>
                   <div className="seminos-form-group">
@@ -291,6 +311,7 @@ const CarrosSeminovos = () => {
                       value={formData.dataInicio}
                       onChange={handleChange}
                       required
+                      min={format(new Date(), "yyyy-MM-dd'T'HH:mm")}
                     />
                   </div>
                   
@@ -306,13 +327,15 @@ const CarrosSeminovos = () => {
                     />
                   </div>
                   
-                  <div className="seminos-form-group">
-                    <label>Valor Total</label>
-                    <input
-                      type="text"
-                      value={`R$ ${formData.valorTotal}`}
-                      readOnly
-                    />
+                  <div className="resumo-aluguel">
+                    <div className="resumo-item">
+                      <span>Dias de aluguel:</span>
+                      <span className="destaque-valor">{dias} {dias === 1 ? 'dia' : 'dias'}</span>
+                    </div>
+                    <div className="resumo-item">
+                      <span>Valor total:</span>
+                      <span className="destaque-valor">R$ {formData.valorTotal}</span>
+                    </div>
                   </div>
                   
                   <div className="seminos-form-group">
@@ -321,6 +344,7 @@ const CarrosSeminovos = () => {
                       name="observacoes"
                       value={formData.observacoes}
                       onChange={handleChange}
+                      placeholder="Informações adicionais sobre o aluguel"
                     />
                   </div>
                   
@@ -337,7 +361,11 @@ const CarrosSeminovos = () => {
                       className="seminos-modal-confirmar"
                       disabled={loadingAluguel}
                     >
-                      {loadingAluguel ? 'Processando...' : 'Confirmar'}
+                      {loadingAluguel ? (
+                        <>
+                          <span className="spinner"></span> Processando...
+                        </>
+                      ) : 'Confirmar Aluguel'}
                     </button>
                   </div>
                 </form>
